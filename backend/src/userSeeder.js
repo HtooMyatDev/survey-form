@@ -12,13 +12,13 @@ const userSeeder = async () => {
         await User.create({
             name: "Esther Oo",
             email: "estheroo@gmail.com",
-            password: "hxwm@91022",
+            password: "mamacita123",
         });
 
         await User.create({
             name: "Rex",
             email: "htookaungmyataung@gmail.com",
-            password: "hxwm@91022",
+            password: "mamacita123",
         });
 
         console.log("Researcher user seeded.");
