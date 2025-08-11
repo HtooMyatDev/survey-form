@@ -45,7 +45,7 @@ const ResponseDetailPage = () => {
                             <div className="text-red-500 text-center">{error}</div>
                         )}
                         {response && (
-                            <>
+                            <div>
                                 <h2 className="text-2xl font-bold mb-4">Survey Response Details</h2>
                                 <div className="grid grid-cols-1 gap-4">
                                     <DetailRow label="Age" value={response.age} />
@@ -69,7 +69,7 @@ const ResponseDetailPage = () => {
                                     <DetailRow label="Future Connection" value={response.future_connection} />
                                     <DetailRow label="Submitted At" value={new Date(response.createdAt).toLocaleString()} />
                                 </div>
-                            </>
+                            </div>
                         )}
                     </section>
                 </main>
@@ -81,7 +81,7 @@ const ResponseDetailPage = () => {
 const DetailRow = ({ label, value }) => (
     <div className="flex flex-col sm:flex-row sm:items-center border-b border-pink-100 py-2">
         <span className="font-semibold w-56">{label}:</span>
-        <span className="ml-2 break-all">{value || <span className="text-pink-300">N/A</span>}</span>
+        <span className="ml-2 break-all">{value}</span>
     </div>
 )
 
