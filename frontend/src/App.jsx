@@ -6,6 +6,7 @@ import SuccessPage from './pages/SuccessPage'
 import DashboardPage from './pages/DashboardPage'
 import { ProtectedRoute, AuthenticatedRoute } from './components/PrivateRoute'
 import AllResponsesPage from './pages/AllResponsesPage'
+import ResponseDetailPage from './pages/ResponseDetailPage'
 
 const App = () => {
     return (
@@ -32,6 +33,11 @@ const App = () => {
                         <AllResponsesPage />
                     </ProtectedRoute>
                 } />
+                <Route path='/details/:id' element={
+                    <ProtectedRoute>
+                        <ResponseDetailPage />
+                    </ProtectedRoute>
+                }></Route>
             </Routes>
         </div>
     )
