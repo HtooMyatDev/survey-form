@@ -22,7 +22,7 @@ export async function getFilteredResponses(req, res) {
 
         if (age) filter.age = Number(age);
         if (gender) filter.gender = gender;
-        if (occupation) filter.occupation = occupation;
+        if (occupation) filter.occupation = { $regex: occupation, $options: 'i' };
 
         const responses = await Response.find(filter);
 
@@ -30,5 +30,18 @@ export async function getFilteredResponses(req, res) {
     }
     catch (error) {
         res.status(500).json({ message: "Failed to fetch responses", error: error.message })
+    }
+}
+
+export async function getResponseById(req, res) {
+    try {
+        const { id } = req.params;
+        const response = await Response.findById(id);
+        if (!response) {
+            return res.status(404).json({ message: "Response not found" });
+        }
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch response", error: error.message });
     }
 }
