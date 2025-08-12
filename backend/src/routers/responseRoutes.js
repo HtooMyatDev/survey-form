@@ -2,7 +2,8 @@ import express from "express";
 import {
     submitResponse,
     getFilteredResponses,
-    getResponseById
+    getResponseById,
+    deleteResponse
 } from "../controllers/responseController.js";
 import { submitResponseValidationRules, validate } from "../middleware/responseValidation.js"
 const router = express.Router();
@@ -15,5 +16,8 @@ router.get("/", getFilteredResponses)
 
 // Admin gets a single response by ID
 router.get("/:id", getResponseById);
+
+// Delete a response
+router.delete("/:id", deleteResponse)
 
 export default router;

@@ -9,16 +9,17 @@ const DashboardPage = () => {
         const fetchResponses = async () => {
             try {
                 const res = await api.get('/responses');
-                setResponse(res.data)
-                setCountResponses(response.length)
+                setResponse(res.data.responses);
+                setCountResponses(res.data.pagination.totalItems);
             }
             catch (err) {
-                console.log(err)
+                console.log(err);
             }
         };
 
         fetchResponses();
-    })
+    }, []);
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
