@@ -3,14 +3,31 @@ import Topbar from "../components/Topbar"
 import Sidebar from "../components/Sidebar"
 import api from "../lib/axios"
 const DashboardPage = () => {
-    const [response, setResponse] = useState(null);
-    const [countResponses, setCountResponses] = useState(null)
+    const [countResponses, setCountResponses] = useState(null);
+    const [femaleCount, setFemaleCount] = useState(0);
+    const [maleCount, setMaleCount] = useState(0);
+    const [topOccupation, setTopOccupation] = useState("");
     useEffect(() => {
         const fetchResponses = async () => {
             try {
-                const res = await api.get('/responses');
-                setResponse(res.data.responses);
+                const res = await api.get('/responses?limit=1000'); // Get all responses for stats
+                const responses = res.data.responses;
                 setCountResponses(res.data.pagination.totalItems);
+
+                // Calculate gender counts
+                const femaleCount = responses.filter(r => r.gender === 'female').length;
+                const maleCount = responses.filter(r => r.gender === 'male').length;
+                setFemaleCount(femaleCount);
+                setMaleCount(maleCount);
+
+                // Calculate top occupation
+                const occupationCounts = {};
+                responses.forEach(r => {
+                    occupationCounts[r.occupation] = (occupationCounts[r.occupation] || 0) + 1;
+                });
+                const topOccupation = Object.entries(occupationCounts)
+                    .sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+                setTopOccupation(topOccupation);
             }
             catch (err) {
                 console.log(err);
@@ -45,15 +62,15 @@ const DashboardPage = () => {
                             </div>
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
                                 <h3 className="text-lg font-semibold">Female Participants</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">78</p>
+                                <p className="text-3xl font-bold text-pink-600 mt-2">{femaleCount}</p>
                             </div>
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Avg. Stress Level</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">High</p>
+                                <h3 className="text-lg font-semibold">Male Participants</h3>
+                                <p className="text-3xl font-bold text-blue-600 mt-2">{maleCount}</p>
                             </div>
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Top Coping Method</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">Music 🎵</p>
+                                <h3 className="text-lg font-semibold">Top Occupation</h3>
+                                <p className="text-3xl font-bold text-pink-600 mt-2">{topOccupation}</p>
                             </div>
                         </div>
                     </section>
