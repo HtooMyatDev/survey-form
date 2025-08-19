@@ -1,5 +1,5 @@
 import React from 'react'
-import { User, PieChart, Settings } from "lucide-react";
+import { User, PieChart, Settings, FileText } from "lucide-react";
 import { Link } from "react-router"
 const Sidebar = () => {
     return (
@@ -15,10 +15,14 @@ const Sidebar = () => {
                         <PieChart size={18} />
                         Surveys
                     </Link>
-                    <div className="flex items-center gap-3 font-semibold hover:text-pink-500 cursor-pointer">
+                    <Link className="flex items-center gap-3 font-semibold hover:text-pink-500 cursor-pointer" to={"/questions"}>
+                        <FileText size={18} />
+                        Questions
+                    </Link>
+                    {/* <div className="flex items-center gap-3 font-semibold hover:text-pink-500 cursor-pointer">
                         <Settings size={18} />
                         Settings
-                    </div>
+                    </div> */}
                 </nav>
             </aside >
         </div>

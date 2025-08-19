@@ -6,6 +6,7 @@ import path from "path";
 
 import responseRoutes from "./routers/responseRoutes.js"
 import authRoutes from "./routers/authRoutes.js"
+import questionRoutes from "./routers/questionRoutes.js"
 import { connectDB } from "./config/db.js"
 import { rateLimiter } from "./middleware/rateLimiter.js"
 import userSeeder from "./userSeeder.js";
@@ -32,6 +33,7 @@ app.use(rateLimiter);
 // Routes
 app.use("/api/responses", responseRoutes)
 app.use("/api/auth", authRoutes)
+app.use("/api/questions", questionRoutes)
 
 
 // Serve frontend

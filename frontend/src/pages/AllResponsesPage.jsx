@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 const AllResponsesPage = () => {
 
     const [responses, setResponses] = useState([])
+    const [questions, setQuestions] = useState([])
     const [isRateLimited, setIsRateLimited] = useState(false);
     const [loading, setLoading] = useState(true);
     const [ageFilter, setAgeFilter] = useState("");
@@ -49,8 +50,28 @@ const AllResponsesPage = () => {
     };
 
     useEffect(() => {
-        fetchResponses();
+        const init = async () => {
+            try {
+                const qs = await api.get('/questions');
+                setQuestions(qs.data);
+            } catch (_) {
+                // ignore
+            } finally {
+                fetchResponses();
+            }
+        };
+        init();
     }, []);
+
+    const getFieldFromResponse = (res, fieldKey) => {
+        const direct = (res.answers && res.answers[fieldKey]) || res[fieldKey];
+        if (direct !== undefined && direct !== null && direct !== '') return direct;
+        const q = questions.find(q => q.fieldKey === fieldKey);
+        if (q && res.answers && res.answers[q._id] !== undefined) {
+            return res.answers[q._id];
+        }
+        return undefined;
+    };
 
     const handleFilter = () => {
         const filters = {};
@@ -126,9 +147,13 @@ const AllResponsesPage = () => {
                                 <option value="prefer not to say">Prefer not to say</option>
                             </select>
                             <input
-                                type="text"
+                                type="number"
+                                min="0"
                                 value={ageFilter}
-                                onChange={e => setAgeFilter(e.target.value)}
+                                onChange={e => {
+                                    const v = e.target.value.replace(/[^0-9]/g, '');
+                                    setAgeFilter(v);
+                                }}
                                 placeholder="Filter by Age"
                                 className="p-2 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 w-32"
                             />
@@ -167,9 +192,11 @@ const AllResponsesPage = () => {
                                 <table className="min-w-full table-auto">
                                     <thead className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-800">
                                         <tr>
+                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Submitted</th>
                                             <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Age</th>
                                             <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Gender</th>
                                             <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Occupation</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Total Qs</th>
                                             <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Actions</th>
                                         </tr>
                                     </thead>
@@ -180,19 +207,37 @@ const AllResponsesPage = () => {
                                                 className={`hover:bg-pink-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-pink-25'
                                                     }`}
                                             >
+                                                <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                                    {res.createdAt ? new Date(res.createdAt).toLocaleString() : 'N/A'}
+                                                </td>
                                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                                    {res.age} years
+                                                    {(() => {
+                                                        const ageVal = getFieldFromResponse(res, 'age');
+                                                        if (ageVal === undefined || ageVal === null || ageVal === '') return 'N/A';
+                                                        const num = parseInt(ageVal, 10);
+                                                        return Number.isFinite(num) ? `${num} years` : 'N/A';
+                                                    })()}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${res.gender === 'female' ? 'bg-pink-100 text-pink-800' :
-                                                        res.gender === 'male' ? 'bg-blue-100 text-blue-800' :
-                                                            'bg-gray-100 text-gray-800'
-                                                        }`}>
-                                                        {res.gender}
-                                                    </span>
+                                                    {(() => {
+                                                        const g = getFieldFromResponse(res, 'gender');
+                                                        const val = (g === undefined || g === null || g === '') ? 'N/A' : g;
+                                                        const cls = val === 'female' ? 'bg-pink-100 text-pink-800' : val === 'male' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+                                                        return (
+                                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${cls}`}>
+                                                                {val}
+                                                            </span>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700">
-                                                    {res.occupation}
+                                                    {(() => {
+                                                        const occ = getFieldFromResponse(res, 'occupation');
+                                                        return (occ === undefined || occ === null || occ === '') ? 'N/A' : occ;
+                                                    })()}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">
+                                                    {res.totalQuestions ?? (res.questionIds ? res.questionIds.length : 'N/A')}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
                                                     <div className="flex items-center space-x-3">

@@ -5,11 +5,10 @@ import {
     getResponseById,
     deleteResponse
 } from "../controllers/responseController.js";
-import { submitResponseValidationRules, validate } from "../middleware/responseValidation.js"
 const router = express.Router();
 
 // Respondent submits a response
-router.post("/", submitResponseValidationRules, validate, submitResponse);
+router.post("/", submitResponse);
 
 // Admin gets all responses
 router.get("/", getFilteredResponses)

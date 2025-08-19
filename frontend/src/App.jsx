@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import { ProtectedRoute, AuthenticatedRoute } from './components/PrivateRoute'
 import AllResponsesPage from './pages/AllResponsesPage'
 import ResponseDetailPage from './pages/ResponseDetailPage'
+import QuestionsPage from './pages/QuestionsPage'
 
 const App = () => {
     return (
@@ -37,7 +38,12 @@ const App = () => {
                     <ProtectedRoute>
                         <ResponseDetailPage />
                     </ProtectedRoute>
-                }></Route>
+                } />
+                <Route path='/questions' element={
+                    <ProtectedRoute>
+                        <QuestionsPage />
+                    </ProtectedRoute>
+                } />
             </Routes>
         </div>
     )

@@ -8,14 +8,20 @@ const ResponseDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [response, setResponse] = useState(null);
+    const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchResponse = async () => {
             try {
-                const res = await api.get(`/responses/${id}`);
-                setResponse(res.data);
+                const [responseRes, questionsRes] = await Promise.all([
+                    api.get(`/responses/${id}`),
+                    api.get('/questions')
+                ]);
+
+                setResponse(responseRes.data);
+                setQuestions(questionsRes.data);
             } catch {
                 setError('Failed to fetch response.');
             } finally {
@@ -24,6 +30,51 @@ const ResponseDetailPage = () => {
         };
         fetchResponse();
     }, [id]);
+
+    const getAnswerValue = (questionId) => {
+        if (!response || !response.answers) return 'N/A';
+
+        // Try to get from the new answers structure first
+        const answer = response.answers[questionId];
+        if (answer !== undefined) {
+            if (Array.isArray(answer)) {
+                return answer.join(', ');
+            }
+            return answer;
+        }
+
+        // Fallback to old structure for backward compatibility
+        return 'N/A';
+    };
+
+    const getQuestionText = (questionId) => {
+        const question = questions.find(q => q._id === questionId);
+        return question ? question.questionText : `Question ${questionId}`;
+    };
+
+    const formatAnswer = (questionId, answer) => {
+        if (!answer || answer === 'N/A') return 'Not answered';
+
+        const question = questions.find(q => q._id === questionId);
+        if (!question) return answer;
+
+        // For radio and checkbox questions, show the option text instead of value
+        if (question.questionType === 'radio' || question.questionType === 'checkbox') {
+            if (Array.isArray(answer)) {
+                // For checkbox questions
+                return answer.map(val => {
+                    const option = question.options.find(opt => opt.value === val);
+                    return option ? option.text : val;
+                }).join(', ');
+            } else {
+                // For radio questions
+                const option = question.options.find(opt => opt.value === answer);
+                return option ? option.text : answer;
+            }
+        }
+
+        return answer;
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
@@ -47,27 +98,57 @@ const ResponseDetailPage = () => {
                         {response && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Survey Response Details</h2>
-                                <div className="grid grid-cols-1 gap-4">
-                                    <DetailRow label="Age" value={response.age} />
-                                    <DetailRow label="Gender" value={response.gender} />
-                                    <DetailRow label="Occupation" value={response.occupation} />
-                                    <DetailRow label="Mental Illness Causes" value={response.mental_illness_causes?.join(', ')} />
-                                    <DetailRow label="Mental Illness Treatable" value={response.mental_illness_treatable} />
-                                    <DetailRow label="Know Where to Seek Help" value={response.know_where_to_seek_help} />
-                                    <DetailRow label="Perceive Mentally Ill as Dangerous" value={response.perceive_mentally_ill_as_dangerous} />
-                                    <DetailRow label="Spoken with Professional" value={response.spoken_with_professional} />
-                                    <DetailRow label="Barrier to Mental Health Support" value={response.barrier_to_mental_health_support} />
-                                    <DetailRow label="Mental Serious as Physical" value={response.mental_serious_as_physical} />
-                                    <DetailRow label="Live Normal" value={response.live_normal} />
-                                    <DetailRow label="Believe Spiritual Helps" value={response.believe_spiritual_helps} />
-                                    <DetailRow label="Think About Mental" value={response.think_about_mental} />
-                                    <DetailRow label="Do When Feel Stressed" value={response.do_when_feel_stressed} />
-                                    <DetailRow label="Describe in One Word" value={response.describe_in_one_word} />
-                                    <DetailRow label="Rate Mental Health" value={response.rate_mental_health} />
-                                    <DetailRow label="Mental Health Day" value={response.mental_health_day} />
-                                    <DetailRow label="Easier to Open Up" value={response.easier_to_open_up?.join(', ')} />
-                                    <DetailRow label="Future Connection" value={response.future_connection} />
-                                    <DetailRow label="Submitted At" value={new Date(response.createdAt).toLocaleString()} />
+
+                                {/* Response Metadata */}
+                                <div className="mb-6 p-4 bg-pink-50 rounded-lg">
+                                    <h3 className="text-lg font-semibold mb-2 text-pink-700">Response Information</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <span className="font-medium">Total Questions:</span> {response.totalQuestions || 'N/A'}
+                                        </div>
+                                        <div>
+                                            <span className="font-medium">Submitted:</span> {new Date(response.createdAt).toLocaleString()}
+                                        </div>
+                                        <div>
+                                            <span className="font-medium">Response ID:</span> {response._id}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Answers */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-pink-700">Answers</h3>
+
+                                    {response.questionIds && response.questionIds.length > 0 ? (
+                                        // New structure - show questions in order
+                                        response.questionIds.map((questionId, index) => {
+                                            const answer = getAnswerValue(questionId);
+                                            const questionText = getQuestionText(questionId);
+                                            const formattedAnswer = formatAnswer(questionId, answer);
+
+                                            return (
+                                                <DetailRow
+                                                    key={questionId}
+                                                    label={`${index + 1}. ${questionText}`}
+                                                    value={formattedAnswer}
+                                                />
+                                            );
+                                        })
+                                    ) : (
+                                        // Fallback for old structure or when questionIds is not available
+                                        questions.map((question, index) => {
+                                            const answer = getAnswerValue(question._id);
+                                            const formattedAnswer = formatAnswer(question._id, answer);
+
+                                            return (
+                                                <DetailRow
+                                                    key={question._id}
+                                                    label={`${index + 1}. ${question.questionText}`}
+                                                    value={formattedAnswer}
+                                                />
+                                            );
+                                        })
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -79,9 +160,9 @@ const ResponseDetailPage = () => {
 }
 
 const DetailRow = ({ label, value }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center border-b border-pink-100 py-2">
-        <span className="font-semibold w-56">{label}:</span>
-        <span className="ml-2 break-all">{value}</span>
+    <div className="flex flex-col sm:flex-row sm:items-start border-b border-pink-100 py-3">
+        <span className="font-semibold w-full sm:w-80 mb-2 sm:mb-0 text-pink-700">{label}:</span>
+        <span className="ml-0 sm:ml-4 break-words flex-1">{value}</span>
     </div>
 )
 

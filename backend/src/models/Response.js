@@ -2,98 +2,60 @@ import mongoose from "mongoose";
 
 const responseSchema = new mongoose.Schema(
     {
-        age: {
+        // Dynamic answers object - will store questionId: answer pairs
+        answers: {
+            type: Map,
+            of: mongoose.Schema.Types.Mixed, // Can be String, Array, Number, etc.
+            required: true,
+            default: new Map()
+        },
+
+        // Optional metadata fields that might be useful
+        totalQuestions: {
             type: Number,
-            required: true,
-        },
-        gender: {
-            type: String,
-            required: true,
-        },
-        occupation: {
-            type: String,
-            required: true,
+            required: true
         },
 
-        // Q5: Multiple choice (select all that apply)
-        mental_illness_causes: {
-            type: [String],
-            required: true,
+        completedAt: {
+            type: Date,
+            default: Date.now
         },
 
-        // Q6
-        mental_illness_treatable: {
-            type: String, // e.g., 'strongly_agree', 'agree'
-            required: true,
-        },
-
-        // Q7
-        know_where_to_seek_help: {
-            type: String, // true = Yes, false = No
-            required: true,
-        },
-
-        // Q8
-        perceive_mentally_ill_as_dangerous: {
-            type: String, // e.g., 'agree', 'disagree', etc.
-            required: true,
-        },
-
-        // Q9
-        spoken_with_professional: {
-            type: String, // true = Yes, false = No
-            required: true,
-        },
-
-        // Q10
-        barrier_to_mental_health_support: {
-            type: String,
-            required: true,
-        },
-
-        mental_serious_as_physical: {
-            type: String,
-            required: true,
-        },
-        live_normal: {
-            type: String,
-            required: true,
-        },
-        believe_spiritual_helps: {
-            type: String,
-            required: true,
-        },
-        think_about_mental: {
-            type: String,
-            required: true,
-        },
-        do_when_feel_stressed: {
-            type: String,
-            required: true,
-        },
-        describe_in_one_word: {
-            type: String,
-            required: true,
-        },
-        rate_mental_health: {
-            type: String,
-            required: true,
-        },
-        mental_health_day: {
-            type: String,
-            required: true,
-        },
-        easier_to_open_up: {
-            type: [String],
-            required: true,
-        },
-        future_connection: {
-            type: String,
-            required: true,
-        },
+        // Optional: Store which questions were active when this response was submitted
+        questionIds: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Question'
+        }]
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        // Allow dynamic fields to be added
+        strict: false
+    }
 );
+
+// Index for efficient querying
+responseSchema.index({ createdAt: -1 });
+responseSchema.index({ 'answers.age': 1 });
+responseSchema.index({ 'answers.gender': 1 });
+responseSchema.index({ 'answers.occupation': 1 });
+
+// Virtual getter for common fields (for backward compatibility)
+responseSchema.virtual('age').get(function () {
+    return this.answers.get('age');
+});
+
+responseSchema.virtual('gender').get(function () {
+    return this.answers.get('gender');
+});
+
+responseSchema.virtual('occupation').get(function () {
+    return this.answers.get('occupation');
+});
+
+// Ensure virtuals are serialized
+responseSchema.set('toJSON', { virtuals: true });
+responseSchema.set('toObject', { virtuals: true });
 
 const Response = mongoose.model("Response", responseSchema);
 export default Response;

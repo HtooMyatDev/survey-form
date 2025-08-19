@@ -15,15 +15,18 @@ const DashboardPage = () => {
                 setCountResponses(res.data.pagination.totalItems);
 
                 // Calculate gender counts
-                const femaleCount = responses.filter(r => r.gender === 'female').length;
-                const maleCount = responses.filter(r => r.gender === 'male').length;
+                const femaleCount = responses.filter(r => (r.answers?.gender || r.gender) === 'female').length;
+                const maleCount = responses.filter(r => (r.answers?.gender || r.gender) === 'male').length;
                 setFemaleCount(femaleCount);
                 setMaleCount(maleCount);
 
                 // Calculate top occupation
                 const occupationCounts = {};
                 responses.forEach(r => {
-                    occupationCounts[r.occupation] = (occupationCounts[r.occupation] || 0) + 1;
+                    const occupation = r.answers?.occupation || r.occupation;
+                    if (occupation) {
+                        occupationCounts[occupation] = (occupationCounts[occupation] || 0) + 1;
+                    }
                 });
                 const topOccupation = Object.entries(occupationCounts)
                     .sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
@@ -76,9 +79,9 @@ const DashboardPage = () => {
                     </section>
 
                     {/* Footer */}
-                    <footer className="mt-10 text-center text-sm text-pink-400">
+                    {/* <footer className="mt-10 text-center text-sm text-pink-400">
                         <p>Made with 💖 and bubble tea by Hello Kitty's team</p>
-                    </footer>
+                    </footer> */}
                 </main>
             </div>
         </div>
