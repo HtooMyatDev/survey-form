@@ -11,6 +11,7 @@ const QuestionsPage = () => {
     const [showForm, setShowForm] = useState(false);
     const [editingQuestion, setEditingQuestion] = useState(null);
     const [orderError, setOrderError] = useState("");
+    const [optionError, setOptionError] = useState("");
     const [formData, setFormData] = useState({
         questionText: "",
         questionType: "text",
@@ -29,7 +30,7 @@ const QuestionsPage = () => {
         try {
             const response = await api.get("/questions/admin");
             setQuestions(response.data);
-        } catch (error) {
+        } catch {
             toast.error("Failed to fetch questions");
         } finally {
             setLoading(false);
@@ -53,6 +54,10 @@ const QuestionsPage = () => {
             toast.error(`Order number ${formData.order} is already used.`);
             return;
         }
+        if (optionError) {
+            toast.error(optionError);
+            return;
+        }
         try {
             if (editingQuestion) {
                 await api.put(`/questions/${editingQuestion._id}`, formData);
@@ -65,7 +70,7 @@ const QuestionsPage = () => {
             setEditingQuestion(null);
             resetForm();
             fetchQuestions();
-        } catch (error) {
+        } catch {
             toast.error("Failed to save question");
         }
     };
@@ -82,6 +87,7 @@ const QuestionsPage = () => {
             fieldKey: question.fieldKey || ""
         });
         setOrderError("");
+        setOptionError("");
         setShowForm(true);
     };
 
@@ -91,7 +97,7 @@ const QuestionsPage = () => {
                 await api.delete(`/questions/${id}`);
                 toast.success("Question deleted successfully");
                 fetchQuestions();
-            } catch (error) {
+            } catch {
                 toast.error("Failed to delete question");
             }
         }
@@ -102,7 +108,7 @@ const QuestionsPage = () => {
             await api.put(`/questions/${id}/toggle`);
             toast.success("Question status updated");
             fetchQuestions();
-        } catch (error) {
+        } catch {
             toast.error("Failed to update question status");
         }
     };
@@ -118,13 +124,22 @@ const QuestionsPage = () => {
             fieldKey: ""
         });
         setOrderError("");
+        setOptionError("");
     };
 
     const addOption = () => {
-        setFormData(prev => ({
-            ...prev,
-            options: [...prev.options, { text: "", value: "" }]
-        }));
+        setFormData(prev => {
+            const texts = prev.options.map(opt => opt.text.trim().toLowerCase());
+            if (texts.includes("")) {
+                setOptionError("Please fill in the previous option before adding a new one.");
+                return prev;
+            }
+            setOptionError("");
+            return {
+                ...prev,
+                options: [...prev.options, { text: "", value: "" }]
+            };
+        });
     };
 
     const removeOption = (index) => {
@@ -134,13 +149,33 @@ const QuestionsPage = () => {
         }));
     };
 
+    const slugify = (text) => {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z0-9_]/g, '');
+    };
+
     const updateOption = (index, field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            options: prev.options.map((option, i) =>
-                i === index ? { ...option, [field]: value } : option
-            )
-        }));
+        setFormData(prev => {
+            let newOptions = prev.options.map((option, i) => {
+                if (i === index) {
+                    if (field === 'text') {
+                        const newText = value;
+                        return { ...option, text: newText, value: slugify(newText) };
+                    }
+                    return { ...option, [field]: value };
+                }
+                return option;
+            });
+            // Check for duplicate option texts (case-insensitive, ignore self)
+            const texts = newOptions.map(opt => opt.text.trim().toLowerCase());
+            const hasDuplicate = texts.some((text, idx) => text && texts.indexOf(text) !== idx);
+            setOptionError(hasDuplicate ? "Duplicate option text is not allowed." : "");
+            return { ...prev, options: newOptions };
+        });
     };
 
     if (loading) {
@@ -269,6 +304,9 @@ const QuestionsPage = () => {
                                     <div>
                                         <label className="block text-sm font-medium mb-2">Options</label>
                                         <div className="space-y-2">
+                                            {optionError && (
+                                                <div className="text-xs text-red-500 mb-2">{optionError}</div>
+                                            )}
                                             {formData.options.map((option, index) => (
                                                 <div key={index} className="flex gap-2">
                                                     <input
@@ -276,13 +314,6 @@ const QuestionsPage = () => {
                                                         placeholder="Option text"
                                                         value={option.text}
                                                         onChange={(e) => updateOption(index, 'text', e.target.value)}
-                                                        className="flex-1 p-2 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Value"
-                                                        value={option.value}
-                                                        onChange={(e) => updateOption(index, 'value', e.target.value)}
                                                         className="flex-1 p-2 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
                                                     />
                                                     <button
@@ -309,6 +340,7 @@ const QuestionsPage = () => {
                                     <button
                                         type="submit"
                                         className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600"
+                                        disabled={!!optionError}
                                     >
                                         {editingQuestion ? "Update Question" : "Create Question"}
                                     </button>
@@ -343,7 +375,7 @@ const QuestionsPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-pink-100">
-                                    {questions.map((question, index) => (
+                                    {questions.map((question) => (
                                         <tr key={question._id} className="hover:bg-pink-50">
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                                 {question.order}
