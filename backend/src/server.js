@@ -7,9 +7,12 @@ import path from "path";
 import responseRoutes from "./routers/responseRoutes.js"
 import authRoutes from "./routers/authRoutes.js"
 import questionRoutes from "./routers/questionRoutes.js"
+
+import userSeeder from "./userSeeder.js";
+
 import { connectDB } from "./config/db.js"
 import { rateLimiter } from "./middleware/rateLimiter.js"
-import userSeeder from "./userSeeder.js";
+
 // Load environment variables
 dotenv.config()
 

@@ -1,7 +1,15 @@
 import React from 'react';
 import { Heart, Star, Sparkles, Home, Download, Share2 } from 'lucide-react';
-import { Link } from "react-router"
+import { Link, useLocation } from "react-router-dom";
+
+// Success page component for survey completion
 const HelloKittySuccess = () => {
+    // Get the number of questions answered from location state (passed from survey page)
+    const location = useLocation();
+    const questionsAnswered = location.state?.questionsAnswered ?? 1;
+    const totalQuestions = location.state?.totalQuestions ?? 1;
+
+    // Floating decorative element component
     const FloatingElement = ({ children, className, delay = "0s" }) => (
         <div
             className={`absolute ${className}`}
@@ -13,16 +21,6 @@ const HelloKittySuccess = () => {
             {children}
         </div>
     );
-
-    const handleDownloadResults = () => {
-        // Simulate download functionality
-        console.log('Downloading survey results...');
-    };
-
-    const handleShareResults = () => {
-        // Simulate share functionality
-        console.log('Sharing survey...');
-    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white relative overflow-hidden">
@@ -132,11 +130,13 @@ const HelloKittySuccess = () => {
                                 <h3 className="text-pink-600 font-semibold mb-3">Survey Complete! ✨</h3>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-pink-500">20</div>
+                                        {/* Dynamically show how many questions were answered */}
+                                        <div className="text-2xl font-bold text-pink-500">{questionsAnswered}</div>
                                         <div className="text-pink-400">Questions Answered</div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-pink-500">100%</div>
+                                        {/* Show survey progress as a percentage */}
+                                        <div className="text-2xl font-bold text-pink-500">{totalQuestions > 0 ? `${Math.round((questionsAnswered / totalQuestions) * 100)}%` : '100%'}</div>
                                         <div className="text-pink-400">Survey Progress</div>
                                     </div>
                                 </div>

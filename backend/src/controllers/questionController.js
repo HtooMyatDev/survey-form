@@ -1,7 +1,7 @@
 import Question from "../models/Question.js";
 
 // Get all active questions ordered by their order field
-export async function getAllQuestions(req, res) {
+export async function getAllQuestions(_, res) {
     try {
         const questions = await Question.find({ isActive: true })
             .sort({ order: 1, createdAt: 1 });
@@ -16,7 +16,7 @@ export async function getAllQuestions(req, res) {
 }
 
 // Get all questions (including inactive) for admin management
-export async function getAllQuestionsAdmin(req, res) {
+export async function getAllQuestionsAdmin(_, res) {
     try {
         const questions = await Question.find()
             .sort({ order: 1, createdAt: 1 });

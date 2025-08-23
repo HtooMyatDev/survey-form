@@ -161,7 +161,20 @@ const HelloKittySurvey = () => {
                     fontWeight: 'bold'
                 }
             });
-            navigate("/success");
+            // Count all questions the user was presented with
+            const totalQuestions = questions.length;
+            // Count how many questions the user actually answered (not blank, not empty array)
+            const questionsAnswered = questions.filter(q => {
+                const val = formData[q._id];
+                if (Array.isArray(val)) return val.length > 0;
+                return val !== undefined && val !== null && val !== '';
+            }).length;
+            navigate("/success", {
+                state: {
+                    questionsAnswered,
+                    totalQuestions
+                }
+            });
         } catch (error) {
             if (error.response?.status === 429) {
                 toast.error("Slow down, you are submitting surveys way too fast", {

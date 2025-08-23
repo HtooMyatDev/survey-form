@@ -3,62 +3,72 @@ import Question from "../models/Question.js"
 
 export async function submitResponse(req, res) {
     try {
-        // Get all active questions to validate the response
+        // Step 1: Fetch all active questions, sorted by their order
         const questions = await Question.find({ isActive: true }).sort({ order: 1 });
 
+        // Step 2: If there are no active questions, return an error
         if (questions.length === 0) {
             return res.status(400).json({
                 message: "No active questions found. Survey is not available.",
             });
         }
 
-        // Validate that all required questions are answered
+        // Step 3: Prepare containers for validation errors, answers, and question IDs
         const validationErrors = [];
-        const answers = new Map();
+        const answers = {}; // Use plain object for easier serialization
         const questionIds = [];
 
+        // Helper: Checks if a question is answered
+        function isAnswered(question, answer) {
+            if (question.questionType === 'checkbox') {
+                // Checkbox answers must be a non-empty array
+                return Array.isArray(answer) && answer.length > 0;
+            }
+            // Other types: must not be empty (if string, must not be blank)
+            return answer && (typeof answer !== 'string' || answer.trim() !== '');
+        }
+
+        // Helper: Checks if a question is an age question
+        function isAgeQuestion(question) {
+            return (question.fieldKey === 'age') || (/age/i.test(question.questionText));
+        }
+
+        // Step 4: Validate each question and collect answers
         for (const question of questions) {
             questionIds.push(question._id);
             const answer = req.body[question._id];
 
-            if (question.isRequired) {
-                if (question.questionType === 'checkbox') {
-                    if (!answer || !Array.isArray(answer) || answer.length === 0) {
-                        validationErrors.push(`Question "${question.questionText}" is required`);
-                    } else {
-                        answers.set(question._id.toString(), answer);
-                    }
-                } else {
-                    if (!answer || (typeof answer === 'string' && answer.trim() === '')) {
-                        validationErrors.push(`Question "${question.questionText}" is required`);
-                    } else {
-                        answers.set(question._id.toString(), answer);
-                    }
-                }
-            } else {
-                // Optional questions - only add if answered
-                if (answer !== undefined && answer !== null && answer !== '') {
-                    answers.set(question._id.toString(), answer);
-                }
+            // Step 4a: Validate required questions
+            if (question.isRequired && !isAnswered(question, answer)) {
+                validationErrors.push(`Question "${question.questionText}" is required`);
+                continue; // Skip to next question if not answered
             }
 
-            // Map special fieldKey values into top-level answers as well (e.g., age, gender, occupation)
-            if (answers.has(question._id.toString())) {
-                const valueFromId = answers.get(question._id.toString());
-                const isAgeQuestion = (question.fieldKey === 'age') || (/age/i.test(question.questionText));
-                if (isAgeQuestion) {
+            // Step 4b: Add answer if present (for required or optional questions)
+            if (isAnswered(question, answer)) {
+                answers[question._id.toString()] = answer;
+            }
+
+            // Step 4c: For special questions (like age, gender, occupation),
+            // also map their answers to a top-level key for easier access later
+            if (answers[question._id.toString()] !== undefined) {
+                const valueFromId = answers[question._id.toString()];
+                if (isAgeQuestion(question)) {
+                    // Validate and store age as a non-negative number
                     const numeric = typeof valueFromId === 'number' ? valueFromId : parseInt((valueFromId || '').toString().trim(), 10);
                     if (!Number.isFinite(numeric) || numeric < 0) {
                         validationErrors.push('Age must be a non-negative number');
                     } else {
-                        answers.set('age', numeric);
+                        answers['age'] = numeric;
                     }
                 } else if (question.fieldKey) {
-                    answers.set(question.fieldKey, valueFromId);
+                    // For other special fields, map to their fieldKey
+                    answers[question.fieldKey] = valueFromId;
                 }
             }
         }
 
+        // Step 5: If there are any validation errors, return them to the client
         if (validationErrors.length > 0) {
             return res.status(400).json({
                 message: "Validation failed",
@@ -66,16 +76,18 @@ export async function submitResponse(req, res) {
             });
         }
 
-        // Create the response with the new structure
+        // Step 6: Prepare the response data object
         const responseData = {
             answers: answers,
             totalQuestions: questions.length,
             questionIds: questionIds
         };
 
+        // Step 7: Save the response to the database
         await Response.create(responseData);
         res.status(201).json({ message: "Response submitted successfully!" });
     } catch (error) {
+        // Step 8: Handle unexpected errors
         res.status(400).json({
             message: "Error in submitResponse method",
             error: error.message,

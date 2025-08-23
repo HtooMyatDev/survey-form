@@ -3,12 +3,6 @@ import User from "./models/User.js";
 
 const userSeeder = async () => {
     try {
-        // const existing = await User.findOne({ email: "researcher@example.com" });
-        // if (existing) {
-        //     console.log("Researcher user already exists.");
-        //     return;
-        // }
-
         await User.create({
             name: "Esther Oo",
             email: "estheroo@gmail.com",

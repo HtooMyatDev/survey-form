@@ -8,6 +8,7 @@ import { ProtectedRoute, AuthenticatedRoute } from './components/PrivateRoute'
 import AllResponsesPage from './pages/AllResponsesPage'
 import ResponseDetailPage from './pages/ResponseDetailPage'
 import QuestionsPage from './pages/QuestionsPage'
+import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
     return (
@@ -44,6 +45,8 @@ const App = () => {
                         <QuestionsPage />
                     </ProtectedRoute>
                 } />
+                {/* 404 Not Found Route */}
+                <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </div>
     )
