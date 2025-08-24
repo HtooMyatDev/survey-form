@@ -4,13 +4,7 @@ A comprehensive full-stack survey platform built with the MERN stack, designed f
 
 ## 🚀 Live Demo
 
-[Live Demo](https://your-deployed-app.com) <!-- Update with your actual deployment URL -->
-
-## 📸 Screenshots
-
-![Survey Form](./screenshots/survey-form.png)
-![Admin Dashboard](./screenshots/admin-dashboard.png)
-![Analytics Panel](./screenshots/analytics.png)
+[Live Demo](https://survey-form-167w.onrender.com/)
 
 ## ✨ Features
 
@@ -57,25 +51,70 @@ A comprehensive full-stack survey platform built with the MERN stack, designed f
 ## 📁 Project Structure
 
 ```
-psychology-survey-mern/
-├── frontend/                 # React frontend application
-│   ├── public/
-│   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API service functions
-│   │   ├── utils/          # Utility functions
-│   │   └── App.js          # Main App component
-│   └── package.json
+PSYCHOLOGY-SURVEY-MERN-APP/
 ├── backend/                 # Node.js/Express backend
-│   ├── controllers/        # Request handlers
-│   ├── models/            # MongoDB schemas
-│   ├── routes/            # API routes
-│   ├── middleware/        # Custom middleware
-│   ├── config/            # Configuration files
-│   └── server.js          # Express server
-├── package.json           # Root package.json
-└── README.md
+│   ├── src/
+│   │   ├── config/         # Configuration files
+│   │   │   ├── db.js       # Database connection
+│   │   │   └── upstash.js  # Redis configuration
+│   │   ├── controllers/    # Request handlers
+│   │   │   ├── authController.js
+│   │   │   ├── questionController.js
+│   │   │   └── responseController.js
+│   │   ├── middleware/     # Custom middleware
+│   │   │   ├── authMiddleware.js
+│   │   │   ├── authValidation.js
+│   │   │   ├── rateLimiter.js
+│   │   │   └── responseValidation.js
+│   │   ├── models/         # MongoDB schemas
+│   │   │   ├── Question.js
+│   │   │   ├── Response.js
+│   │   │   └── User.js
+│   │   └── routers/        # API routes
+│   │       ├── authRoutes.js
+│   │       ├── questionRoutes.js
+│   │       └── responseRoutes.js
+│   ├── server.js           # Express server entry point
+│   ├── userSeeder.js       # Database seeder
+│   ├── .env                # Environment variables (not committed)
+│   ├── .env.example        # Environment template
+│   ├── package-lock.json
+│   └── package.json
+├── frontend/               # React frontend application
+│   ├── dist/              # Build output directory
+│   ├── node_modules/      # Frontend dependencies
+│   ├── public/            # Static assets
+│   │   ├── vite.svg
+│   │   └── index.html
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   │   ├── PrivateRoute.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   └── PageNotFound.jsx
+│   │   ├── lib/           # Utility libraries
+│   │   │   └── axios.js
+│   │   ├── pages/         # Page components
+│   │   │   ├── AllResponsesPage.jsx
+│   │   │   ├── DashboardPage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── NotFoundPage.jsx
+│   │   │   ├── QuestionsPage.jsx
+│   │   │   ├── ResponseDetailPage.jsx
+│   │   │   ├── SuccessPage.jsx
+│   │   │   └── SurveyPage.jsx
+│   │   ├── index.css      # Global styles
+│   │   ├── App.jsx        # Main App component
+│   │   └── main.jsx       # Entry point
+│   ├── .env               # Frontend environment variables
+│   ├── index.html         # Main HTML template
+│   ├── eslint.config.js   # ESLint configuration
+│   ├── tailwind.config.js # Tailwind CSS configuration
+│   ├── vite.config.js     # Vite configuration
+│   ├── package-lock.json
+│   └── package.json
+├── .gitignore             # Git ignore rules
+├── package.json           # Root package.json for deployment
+└── README.md              # Project documentation
 ```
 
 ## 🚀 Getting Started
@@ -129,8 +168,8 @@ Make sure you have the following installed:
    ```
 
    The application will be available at:
-   - Frontend: `http://localhost:3000`
-   - Backend API: `http://localhost:5000`
+   - Frontend: `http://localhost:5173` (Vite default port)
+   - Backend API: `http://localhost:5002`
 
 ## 🎯 Usage
 
@@ -149,20 +188,23 @@ Make sure you have the following installed:
 ## 📊 API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/verify` - Verify JWT token
+- `POST /api/auth/login` - User login with validation
 
-### Surveys
-- `GET /api/surveys` - Get all surveys
-- `POST /api/surveys` - Create new survey (admin)
-- `PUT /api/surveys/:id` - Update survey (admin)
-- `DELETE /api/surveys/:id` - Delete survey (admin)
+### Questions Management
+- `GET /api/questions` - Get all active questions (public)
+- `GET /api/questions/admin` - Get all questions (admin only)
+- `GET /api/questions/:id` - Get specific question by ID
+- `POST /api/questions` - Create new question (admin only)
+- `PUT /api/questions/:id` - Update question (admin only)
+- `DELETE /api/questions/:id` - Delete question (admin only)
+- `PUT /api/questions/reorder` - Reorder questions (admin only)
+- `PUT /api/questions/:id/toggle` - Toggle question status (admin only)
 
-### Responses
-- `GET /api/responses` - Get all responses (admin)
+### Survey Responses
 - `POST /api/responses` - Submit survey response
-- `GET /api/responses/analytics` - Get analytics data (admin)
+- `GET /api/responses` - Get filtered responses (admin only)
+- `GET /api/responses/:id` - Get specific response by ID (admin only)
+- `DELETE /api/responses/:id` - Delete response (admin only)
 
 ## 🔧 Environment Variables
 
@@ -189,16 +231,24 @@ EMAIL_PASS=your_email_password
 
 ## 🚢 Deployment
 
-### Heroku Deployment
-1. Create a Heroku app
-2. Set environment variables in Heroku dashboard
-3. Connect your GitHub repository
-4. Deploy from the main branch
-
-### Vercel/Netlify (Frontend) + Heroku (Backend)
-1. Deploy backend to Heroku
-2. Deploy frontend to Vercel/Netlify
-3. Update frontend API base URL to point to your Heroku backend
+### Render Deployment (Recommended)
+1. Create a Render account
+2. Connect your GitHub repository
+3. Create a new Web Service
+4. Set the build command: `npm run build`
+5. Set the start command: `npm start`
+6. Add environment variables in Render dashboard:
+   ```
+   MONGO_URI=your_mongodb_atlas_connection_string
+   JWT_SECRET=your_jwt_secret
+   UPSTASH_REDIS_REST_URL=your_redis_url
+   UPSTASH_REDIS_REST_TOKEN=your_redis_token
+   ADMIN_EMAIL=your_admin_email
+   ADMIN_PASSWORD=your_admin_password
+   RUN_SEED=true
+   NODE_ENV=production
+   ```
+7. Deploy from the main branch
 
 ## 🤝 Contributing
 
@@ -224,8 +274,8 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 **Htoo Myat**
 
 - GitHub: [@HtooMyatDev](https://github.com/HtooMyatDev)
-- Email: [itshtunyk@gmail.com]
-- LinkedIn: [www.linkedin.com/in/htoo-myat-aung-609997310]
+- Email: itshtunyk@gmail.com
+- LinkedIn: [Htoo Myat Aung](https://www.linkedin.com/in/htoo-myat-aung-609997310)
 
 ## 🙏 Acknowledgments
 

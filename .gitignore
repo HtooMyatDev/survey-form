@@ -23,4 +23,14 @@ dist-ssr
 *.sln
 *.sw?
 
-.env 
+# Environment variables (enhanced)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+
+# Additional backend-specific ignores (optional but recommended)
+backend/.env*
+frontend/.env*
