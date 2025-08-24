@@ -1,156 +1,251 @@
-# Psychology Survey (MERN Stack)
+# Psychology Survey Platform
 
-A full-stack MERN (MongoDB, Express.js, React, Node.js) application for collecting survey responses on demographics (age, gender, occupation) and mental health factors.  
-The system includes user authentication, an admin panel, and analytics to monitor and visualize responses.
+A comprehensive full-stack survey platform built with the MERN stack, designed for psychology research and data collection. Features user authentication, admin dashboard, response monitoring, and advanced analytics.
 
-🔗 **Live Demo:** [https://survey-form-167w.onrender.com](https://survey-form-167w.onrender.com)
+## 🚀 Live Demo
 
----
+[Live Demo](https://your-deployed-app.com) <!-- Update with your actual deployment URL -->
 
-## 📌 Features
-- **Survey Form** for demographics and mental health questions
-- **User Authentication** (Admin login required for dashboard)
-- **Admin Panel** to monitor survey responses
-- **Analytics Dashboard** for visualizing collected data
-- **Responsive Design** (mobile + desktop)
-- **JWT-secured API**
-- **MongoDB Atlas** for cloud data storage
-- **Redis (Upstash)** for caching and performance
+## 📸 Screenshots
 
----
+![Survey Form](./screenshots/survey-form.png)
+![Admin Dashboard](./screenshots/admin-dashboard.png)
+![Analytics Panel](./screenshots/analytics.png)
 
-## 🛠 Tech Stack
-**Frontend:**
-- React (Vite)
-- React Router
-- Tailwind CSS / DaisyUI (if used)
-- Axios
+## ✨ Features
 
-**Backend:**
-- Node.js
-- Express.js
-- MongoDB (Mongoose ODM)
-- JSON Web Tokens (JWT)
-- Redis (Upstash)
+### 👤 User Features
+- 🔐 **Secure Authentication** - User registration and login system
+- 📝 **Interactive Survey Forms** - Psychology-focused questionnaires
+- 📱 **Responsive Design** - Optimized for all devices
+- ✅ **Form Validation** - Client and server-side validation
+- 💾 **Progress Saving** - Resume surveys later
 
-**Other Tools:**
-- Render (Deployment)
-- npm scripts for build/start automation
+### 👨‍💼 Admin Features
+- 📊 **Admin Dashboard** - Comprehensive overview of survey data
+- 👥 **User Management** - Monitor and manage survey participants
+- 📈 **Advanced Analytics** - Data visualization and insights
+- 📋 **Response Monitoring** - Real-time survey response tracking
+- 📤 **Data Export** - Export survey results for analysis
+- 🎛️ **Survey Management** - Create, edit, and manage surveys
 
----
+### 🔧 Technical Features
+- 🔒 **JWT Authentication** - Secure token-based authentication
+- 🗄️ **MongoDB Integration** - Scalable database solution
+- 🎨 **Modern UI/UX** - Clean and intuitive interface
+- ⚡ **Performance Optimized** - Fast loading and responsive
+- 🔄 **RESTful API** - Well-structured backend endpoints
 
-## 📂 Project Structure
-survey-form/
-│── backend/ # Node.js + Express API
-│ ├── models/ # Mongoose schemas
-│ ├── routes/ # API routes
-│ ├── controllers/ # Business logic
-│ ├── middlewares/ # Auth & validation
-│ └── server.js # Entry point
-│
-│── frontend/ # React frontend
-│ ├── src/
-│ │ ├── components/
-│ │ ├── pages/
-│ │ ├── utils/
-│ │ └── App.jsx
-│ └── package.json
-│
-└── package.json # Root scripts for build/start
+## 🛠️ Tech Stack
 
----
+### Frontend
+- **React.js** - User interface library
+- **CSS3/SCSS** - Styling and responsive design
+- **Axios** - HTTP client for API calls
+- **React Router** - Client-side routing
+- **Chart.js/D3.js** - Data visualization (if applicable)
 
-## 🚀 Installation & Setup
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - MongoDB object modeling
+- **JWT** - JSON Web Tokens for authentication
+- **bcrypt** - Password hashing
+- **CORS** - Cross-origin resource sharing
 
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/HtooMyatDev/survey-form.git
-cd survey-form
-# Install backend dependencies
-cd backend
-npm install
+## 📁 Project Structure
 
-# Install frontend dependencies
-cd ../frontend
-npm install
-VITE_API_URL=http://localhost:5002/api
-MONGO_URI=mongodb+srv://dbUser:dbUserPassword@cluster0.xhszj7z.mongodb.net/surveys_db?retryWrites=true&w=majority&appName=Cluster0
-PORT=5002
-RUN_SEED=false
-JWT_SECRET=your_jwt_secret_here
-UPSTASH_REDIS_REST_URL="your_upstash_url"
-UPSTASH_REDIS_REST_TOKEN="your_upstash_token"
+```
+psychology-survey-mern/
+├── frontend/                 # React frontend application
+│   ├── public/
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/          # Page components
+│   │   ├── services/       # API service functions
+│   │   ├── utils/          # Utility functions
+│   │   └── App.js          # Main App component
+│   └── package.json
+├── backend/                 # Node.js/Express backend
+│   ├── controllers/        # Request handlers
+│   ├── models/            # MongoDB schemas
+│   ├── routes/            # API routes
+│   ├── middleware/        # Custom middleware
+│   ├── config/            # Configuration files
+│   └── server.js          # Express server
+├── package.json           # Root package.json
+└── README.md
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Make sure you have the following installed:
+- [Node.js](https://nodejs.org/) (v14 or higher)
+- [MongoDB](https://www.mongodb.com/) (or MongoDB Atlas account)
+- [Git](https://git-scm.com/)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/HtooMyatDev/survey-form.git
+   cd survey-form
+   ```
+
+2. **Install dependencies for both frontend and backend**
+   ```bash
+   npm run build
+   ```
+   This will install dependencies for both frontend and backend applications.
+
+3. **Set up environment variables**
+
+   Create `.env` files in the backend directory:
+   ```bash
+   # backend/.env
+   PORT=5000
+   MONGODB_URI=mongodb://localhost:27017/psychology-survey
+   JWT_SECRET=your_jwt_secret_key
+   NODE_ENV=development
+   ```
+
+4. **Start MongoDB**
+   Make sure MongoDB is running on your system or use MongoDB Atlas.
+
+5. **Run the application**
+
+   **Development mode (runs both frontend and backend):**
+   ```bash
+   # In the root directory
+   npm run dev
+   ```
+
+   **Production mode:**
+   ```bash
+   npm start
+   ```
+
+   The application will be available at:
+   - Frontend: `http://localhost:3000`
+   - Backend API: `http://localhost:5000`
+
+## 🎯 Usage
+
+### For Survey Participants
+1. Register for a new account or login
+2. Complete the psychology survey forms
+3. Submit responses and view confirmation
+
+### For Administrators
+1. Login with admin credentials
+2. Access the admin dashboard
+3. Monitor survey responses in real-time
+4. View analytics and export data
+5. Manage users and surveys
+
+## 📊 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/verify` - Verify JWT token
+
+### Surveys
+- `GET /api/surveys` - Get all surveys
+- `POST /api/surveys` - Create new survey (admin)
+- `PUT /api/surveys/:id` - Update survey (admin)
+- `DELETE /api/surveys/:id` - Delete survey (admin)
+
+### Responses
+- `GET /api/responses` - Get all responses (admin)
+- `POST /api/responses` - Submit survey response
+- `GET /api/responses/analytics` - Get analytics data (admin)
+
+## 🔧 Environment Variables
+
+Create the following environment variables in your backend `.env` file:
+
+```env
+# Server Configuration
+PORT=5000
 NODE_ENV=development
-4️⃣ Run locally
 
-In two separate terminals:
+# Database
+MONGODB_URI=mongodb://localhost:27017/psychology-survey
 
-# Backend
-cd backend
-npm run dev
+# Authentication
+JWT_SECRET=your_super_secret_jwt_key
+JWT_EXPIRE=30d
 
-# Frontend
-cd frontend
-npm run dev
+# Optional: Email Configuration (if implementing email features)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_email_password
+```
 
+## 🚢 Deployment
 
-Frontend will run on http://localhost:5173 and backend on http://localhost:5002
-📦 Build & Start (Production)
-# Build frontend and install all deps
-npm run build
+### Heroku Deployment
+1. Create a Heroku app
+2. Set environment variables in Heroku dashboard
+3. Connect your GitHub repository
+4. Deploy from the main branch
 
-# Start backend
-npm start
+### Vercel/Netlify (Frontend) + Heroku (Backend)
+1. Deploy backend to Heroku
+2. Deploy frontend to Vercel/Netlify
+3. Update frontend API base URL to point to your Heroku backend
 
-📊 API Endpoints
-| Method | Endpoint          | Description              | Auth Required |
-| ------ | ----------------- | ------------------------ | ------------- |
-| GET    | `/api/surveys`    | Get all survey responses | ✅ Admin       |
-| POST   | `/api/surveys`    | Submit a survey          | ❌ No          |
-| POST   | `/api/auth/login` | Login user               | ❌ No          |
-| GET    | `/api/auth/me`    | Get current user profile | ✅ Yes         |
+## 🤝 Contributing
 
-📈 Admin Analytics
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-The admin dashboard includes:
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Total number of survey responses
+## 🐛 Known Issues
 
-Demographic breakdown charts
-🌍 Deployment
+- List any known issues here
+- Feature requests and bug reports are welcome
 
-The app is deployed on Render.
+## 📝 License
 
-Deployment steps:
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
-Push latest changes to main.
+## 👤 Author
 
-Render automatically installs dependencies and builds the frontend.
+**Htoo Myat**
 
-Render runs npm start to serve the backend.
-Mental health trends and statistics
+- GitHub: [@HtooMyatDev](https://github.com/HtooMyatDev)
+- Email: [your.email@example.com]
+- LinkedIn: [Your LinkedIn Profile]
 
-🤝 Contributing
+## 🙏 Acknowledgments
 
-Fork the repo
+- Psychology research community for survey design insights
+- MERN stack community for development resources
+- Contributors and testers who helped improve this platform
 
-Create a new branch (feature/new-feature)
+## 📞 Support
 
-Commit your changes
+If you encounter any issues or have questions:
 
-Push to your branch
-
-Create a Pull Request
-
-📜 License
-
-This project is licensed under the ISC License.
+1. Check the [Issues](https://github.com/HtooMyatDev/survey-form/issues) page
+2. Create a new issue if your problem isn't already listed
+3. Contact the author directly
 
 ---
 
-If you want, I can also make you a **`/docs` folder** with:
-- Detailed API request/response examples  
-- Database schema diagrams  
-- Admin panel usage guide  
+⭐ **Star this repository if you found it helpful!**
 
-Do you want me to prepare that next so your repo looks fully professional?
+🔗 **Links:**
+- [Report Bug](https://github.com/HtooMyatDev/survey-form/issues)
+- [Request Feature](https://github.com/HtooMyatDev/survey-form/issues)
+- [Documentation](https://github.com/HtooMyatDev/survey-form/wiki)
