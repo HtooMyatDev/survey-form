@@ -62,8 +62,12 @@ export async function submitResponse(req, res) {
                         answers['age'] = numeric;
                     }
                 } else if (question.fieldKey) {
-                    // For other special fields, map to their fieldKey
-                    answers[question.fieldKey] = valueFromId;
+                    // Normalize to lowercase for special fields
+                    const specialFields = ['gender', 'occupation', 'education'];
+                    const key = specialFields.includes(question.fieldKey.toLowerCase())
+                        ? question.fieldKey.toLowerCase()
+                        : question.fieldKey;
+                    answers[key] = valueFromId;
                 }
             }
         }
