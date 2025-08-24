@@ -224,8 +224,8 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 **Htoo Myat**
 
 - GitHub: [@HtooMyatDev](https://github.com/HtooMyatDev)
-- Email: [your.email@example.com]
-- LinkedIn: [Your LinkedIn Profile]
+- Email: [itshtunyk@gmail.com]
+- LinkedIn: [www.linkedin.com/in/htoo-myat-aung-609997310]
 
 ## 🙏 Acknowledgments
 
@@ -233,19 +233,6 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 - MERN stack community for development resources
 - Contributors and testers who helped improve this platform
 
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/HtooMyatDev/survey-form/issues) page
-2. Create a new issue if your problem isn't already listed
-3. Contact the author directly
-
 ---
 
 ⭐ **Star this repository if you found it helpful!**
-
-🔗 **Links:**
-- [Report Bug](https://github.com/HtooMyatDev/survey-form/issues)
-- [Request Feature](https://github.com/HtooMyatDev/survey-form/issues)
-- [Documentation](https://github.com/HtooMyatDev/survey-form/wiki)
