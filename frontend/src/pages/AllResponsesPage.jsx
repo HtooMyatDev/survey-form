@@ -64,10 +64,22 @@ const AllResponsesPage = () => {
     }, []);
 
     const getFieldFromResponse = (res, fieldKey) => {
-        const direct = (res.answers && res.answers[fieldKey]) || res[fieldKey];
-        if (direct !== undefined && direct !== null && direct !== '') return direct;
+        // 1. Try direct virtual field (e.g., res.gender)
+        if (res[fieldKey] !== undefined && res[fieldKey] !== null && res[fieldKey] !== '') {
+            return res[fieldKey];
+        }
+        // 2. Try answers[fieldKey] (lowercase)
+        if (res.answers && res.answers[fieldKey] !== undefined && res.answers[fieldKey] !== null && res.answers[fieldKey] !== '') {
+            return res.answers[fieldKey];
+        }
+        // 3. Try answers[CapitalizedFieldKey]
+        const capitalized = fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1);
+        if (res.answers && res.answers[capitalized] !== undefined && res.answers[capitalized] !== null && res.answers[capitalized] !== '') {
+            return res.answers[capitalized];
+        }
+        // 4. Try answers[question._id] (legacy or fallback)
         const q = questions.find(q => q.fieldKey === fieldKey);
-        if (q && res.answers && res.answers[q._id] !== undefined) {
+        if (q && res.answers && res.answers[q._id] !== undefined && res.answers[q._id] !== null && res.answers[q._id] !== '') {
             return res.answers[q._id];
         }
         return undefined;
