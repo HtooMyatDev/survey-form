@@ -4,40 +4,71 @@ import Sidebar from "../components/Sidebar"
 import api from "../lib/axios"
 const DashboardPage = () => {
     const [countResponses, setCountResponses] = useState(null);
-    const [femaleCount, setFemaleCount] = useState(0);
     const [maleCount, setMaleCount] = useState(0);
-    const [topOccupation, setTopOccupation] = useState("");
+    const [topStress, setTopStress] = useState("");
+    const [topCoping, setTopCoping] = useState("");
     useEffect(() => {
-        const fetchResponses = async () => {
+        const fetchStats = async () => {
             try {
-                const res = await api.get('/responses?limit=1000'); // Get all responses for stats
+                // Fetch all questions
+                const qRes = await api.get('/questions');
+                const questions = qRes.data;
+                const stressQuestions = questions.filter(q => q.category === 'stress');
+                const copingQuestions = questions.filter(q => q.category === 'coping');
+                const stressIds = stressQuestions.map(q => q._id);
+                const copingIds = copingQuestions.map(q => q._id);
+
+                // Fetch all responses
+                const res = await api.get('/responses?limit=1000');
                 const responses = res.data.responses;
                 setCountResponses(res.data.pagination.totalItems);
 
-                // Calculate gender counts
-                const femaleCount = responses.filter(r => (r.answers?.gender || r.gender) === 'female').length;
+                // Male count
                 const maleCount = responses.filter(r => (r.answers?.gender || r.gender) === 'male').length;
-                setFemaleCount(femaleCount);
                 setMaleCount(maleCount);
 
-                // Calculate top occupation
-                const occupationCounts = {};
+                // Highest Stress (most common answer across all stress questions)
+                const stressAnswerCounts = {};
                 responses.forEach(r => {
-                    const occupation = r.answers?.occupation || r.occupation;
-                    if (occupation) {
-                        occupationCounts[occupation] = (occupationCounts[occupation] || 0) + 1;
-                    }
+                    stressIds.forEach(qid => {
+                        const ans = r.answers?.[qid];
+                        if (ans) {
+                            if (Array.isArray(ans)) {
+                                ans.forEach(a => {
+                                    stressAnswerCounts[a] = (stressAnswerCounts[a] || 0) + 1;
+                                });
+                            } else {
+                                stressAnswerCounts[ans] = (stressAnswerCounts[ans] || 0) + 1;
+                            }
+                        }
+                    });
                 });
-                const topOccupation = Object.entries(occupationCounts)
-                    .sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
-                setTopOccupation(topOccupation);
-            }
-            catch (err) {
+                const topStress = Object.entries(stressAnswerCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+                setTopStress(topStress);
+
+                // Coping (most common answer across all coping questions)
+                const copingAnswerCounts = {};
+                responses.forEach(r => {
+                    copingIds.forEach(qid => {
+                        const ans = r.answers?.[qid];
+                        if (ans) {
+                            if (Array.isArray(ans)) {
+                                ans.forEach(a => {
+                                    copingAnswerCounts[a] = (copingAnswerCounts[a] || 0) + 1;
+                                });
+                            } else {
+                                copingAnswerCounts[ans] = (copingAnswerCounts[ans] || 0) + 1;
+                            }
+                        }
+                    });
+                });
+                const topCoping = Object.entries(copingAnswerCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+                setTopCoping(topCoping);
+            } catch (err) {
                 console.log(err);
             }
         };
-
-        fetchResponses();
+        fetchStats();
     }, []);
 
 
@@ -64,16 +95,16 @@ const DashboardPage = () => {
                                 <p className="text-3xl font-bold text-pink-600 mt-2">{countResponses}</p>
                             </div>
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Female Participants</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">{femaleCount}</p>
-                            </div>
-                            <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
                                 <h3 className="text-lg font-semibold">Male Participants</h3>
                                 <p className="text-3xl font-bold text-blue-600 mt-2">{maleCount}</p>
                             </div>
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Top Occupation</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">{topOccupation}</p>
+                                <h3 className="text-lg font-semibold">Highest Stress</h3>
+                                <p className="text-3xl font-bold text-pink-600 mt-2">{topStress}</p>
+                            </div>
+                            <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
+                                <h3 className="text-lg font-semibold">Coping</h3>
+                                <p className="text-3xl font-bold text-pink-600 mt-2">{topCoping}</p>
                             </div>
                         </div>
                     </section>

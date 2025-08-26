@@ -106,7 +106,17 @@ export async function getFilteredResponses(req, res) {
 
         // Update filter to use the new answers structure
         if (age) filter['answers.age'] = Number(age);
-        if (gender) filter['answers.gender'] = gender;
+        if (gender) {
+            // Handle gender filter with multiple possible formats
+            if (gender.toLowerCase() === 'prefer not to say') {
+                // Match both "prefer not to say" and "prefer_not_to_say"
+                filter['answers.gender'] = {
+                    $in: ['prefer not to say', 'prefer_not_to_say', 'Prefer not to say', 'Prefer_not_to_say']
+                };
+            } else {
+                filter['answers.gender'] = gender;
+            }
+        }
         if (occupation) filter['answers.occupation'] = { $regex: occupation, $options: 'i' };
 
         const pageNum = parseInt(page);

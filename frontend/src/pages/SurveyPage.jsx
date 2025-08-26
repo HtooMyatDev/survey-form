@@ -10,6 +10,7 @@ const HelloKittySurvey = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [formData, setFormData] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [otherInputs, setOtherInputs] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -54,6 +55,30 @@ const HelloKittySurvey = () => {
                 ? prev[questionId].filter(item => item !== value)
                 : [...prev[questionId], value]
         }));
+    };
+
+    const handleOtherRadioSelect = (questionId) => {
+        setFormData(prev => ({ ...prev, [questionId]: '__other__' }));
+        // Do not set value in formData to the custom value while editing
+    };
+    const handleOtherRadioInput = (questionId, value) => {
+        setOtherInputs(prev => ({ ...prev, [questionId]: value }));
+    };
+    const handleOtherCheckboxToggle = (questionId, checked) => {
+        setFormData(prev => {
+            const arr = prev[questionId] || [];
+            if (checked) {
+                // Add marker for textbox, but not the value yet
+                return { ...prev, [questionId]: [...arr, '__other__'] };
+            } else {
+                // Remove both the marker and any previous custom value
+                return { ...prev, [questionId]: arr.filter(v => v !== '__other__') };
+            }
+        });
+        if (!checked) setOtherInputs(prev => ({ ...prev, [questionId]: '' }));
+    };
+    const handleOtherCheckboxInput = (questionId, value) => {
+        setOtherInputs(prev => ({ ...prev, [questionId]: value }));
     };
 
     const QUESTIONS_PER_PAGE = 5;
@@ -116,6 +141,23 @@ const HelloKittySurvey = () => {
         }
     };
 
+    // --- Fix for 'Other' logic ---
+    const processFormDataForSubmit = () => {
+        const processed = { ...formData };
+        Object.keys(processed).forEach(qid => {
+            const val = processed[qid];
+            const custom = otherInputs[qid];
+            if (val === '__other__' && custom && custom.trim() !== '') {
+                processed[qid] = custom;
+            } else if (Array.isArray(val)) {
+                // For checkboxes, replace marker with value
+                processed[qid] = val.map(v => v === '__other__' && custom && custom.trim() !== '' ? custom : v)
+                    .filter(v => v !== '__other__'); // Remove marker if no custom value
+            }
+        });
+        return processed;
+    };
+
     const handleSubmit = async () => {
         if (!validatePage()) return;
 
@@ -150,7 +192,8 @@ const HelloKittySurvey = () => {
 
         setIsSubmitting(true);
         try {
-            await api.post("/responses", formData);
+            const processedFormData = processFormDataForSubmit();
+            await api.post("/responses", processedFormData);
             toast.success('Thank you for sharing, cutie! Your responses help us understand mental health better! 💕', {
                 duration: 5000,
                 style: {
@@ -191,63 +234,117 @@ const HelloKittySurvey = () => {
 
     const renderQuestion = (question) => {
         const value = formData[question._id];
-
+        const otherValue = otherInputs[question._id] || '';
         switch (question.questionType) {
             case 'text':
                 return (
-                    <input
-                        type={question.fieldKey === 'age' ? 'number' : 'text'}
-                        value={value || ''}
-                        onChange={(e) => {
-                            let v = e.target.value;
-                            if (question.fieldKey === 'age') {
-                                v = (v || '').toString().replace(/[^0-9]/g, '');
-                            }
-                            handleInputChange(question._id, v);
-                        }}
-                        placeholder="Enter your answer..."
-                        className="input input-bordered w-full bg-pink-50 border-pink-200 focus:border-pink-400 rounded-2xl text-gray-800 placeholder-pink-400"
-                        required={question.isRequired}
-                        min={question.fieldKey === 'age' ? 0 : undefined}
-                        inputMode={question.fieldKey === 'age' ? 'numeric' : undefined}
-                    />
+                    <>
+                        <label className="block mb-2 font-semibold text-gray-800">{question.order + 1}. {question.questionText}{question.isRequired && <span className="text-red-500 ml-1">*</span>}</label>
+                        <input
+                            type={question.fieldKey === 'age' ? 'number' : 'text'}
+                            value={value || ''}
+                            onChange={(e) => {
+                                let v = e.target.value;
+                                if (question.fieldKey === 'age') {
+                                    v = (v || '').toString().replace(/[^0-9]/g, '');
+                                }
+                                handleInputChange(question._id, v);
+                            }}
+                            placeholder="Enter your answer..."
+                            className="input input-bordered w-full bg-pink-50 border-pink-200 focus:border-pink-400 rounded-2xl text-gray-800 placeholder-pink-400"
+                            required={question.isRequired}
+                            min={question.fieldKey === 'age' ? 0 : undefined}
+                            inputMode={question.fieldKey === 'age' ? 'numeric' : undefined}
+                        />
+                    </>
                 );
 
             case 'radio':
                 return (
-                    <div className="space-y-3">
-                        {question.options.map((option, index) => (
-                            <label key={index} className="flex items-center gap-3 cursor-pointer hover:bg-pink-50 p-2 rounded-lg transition-colors">
-                                <input
-                                    type="radio"
-                                    name={question._id}
-                                    value={option.value}
-                                    checked={value === option.value}
-                                    onChange={(e) => handleInputChange(question._id, e.target.value)}
-                                    className="radio radio-primary radio-sm"
-                                    required={question.isRequired}
-                                />
-                                <span className="text-gray-700">{option.text}</span>
-                            </label>
-                        ))}
-                    </div>
+                    <>
+                        <label className="block mb-2 font-semibold text-gray-800">{question.order + 1}. {question.questionText}{question.isRequired && <span className="text-red-500 ml-1">*</span>}</label>
+                        <div className="space-y-3">
+                            {question.options.map((option, index) => {
+                                const isOther = option.value.toLowerCase() === 'other' || option.text.toLowerCase() === 'other';
+                                return (
+                                    <div key={index}>
+                                        <label className="flex items-center gap-3 cursor-pointer hover:bg-pink-50 p-2 rounded-lg transition-colors">
+                                            <input
+                                                type="radio"
+                                                name={question._id}
+                                                value={isOther ? '__other__' : option.value}
+                                                checked={isOther ? value === '__other__' : value === option.value}
+                                                onChange={() => {
+                                                    if (isOther) {
+                                                        handleOtherRadioSelect(question._id);
+                                                    } else {
+                                                        handleInputChange(question._id, option.value);
+                                                        setOtherInputs(prev => ({ ...prev, [question._id]: '' }));
+                                                    }
+                                                }}
+                                                className="radio radio-primary radio-sm"
+                                                required={question.isRequired}
+                                            />
+                                            <span className="text-gray-700">{option.text}</span>
+                                        </label>
+                                        {isOther && value === '__other__' && (
+                                            <input
+                                                type="text"
+                                                className="mt-2 input input-bordered w-full bg-pink-50 border-pink-200 focus:border-pink-400 rounded-2xl text-gray-800 placeholder-pink-400"
+                                                placeholder="Please specify..."
+                                                value={otherValue}
+                                                onChange={e => handleOtherRadioInput(question._id, e.target.value)}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </>
                 );
 
             case 'checkbox':
                 return (
-                    <div className="space-y-3">
-                        {question.options.map((option, index) => (
-                            <label key={index} className="flex items-center gap-3 cursor-pointer hover:bg-pink-50 p-2 rounded-lg transition-colors">
-                                <input
-                                    type="checkbox"
-                                    checked={value?.includes(option.value) || false}
-                                    onChange={() => handleCheckboxChange(question._id, option.value)}
-                                    className="checkbox checkbox-primary checkbox-sm"
-                                />
-                                <span className="text-gray-700">{option.text}</span>
-                            </label>
-                        ))}
-                    </div>
+                    <>
+                        <label className="block mb-2 font-semibold text-gray-800">{question.order + 1}. {question.questionText}{question.isRequired && <span className="text-red-500 ml-1">*</span>}</label>
+                        <div className="space-y-3">
+                            {question.options.map((option, index) => {
+                                const isOther = option.value.toLowerCase() === 'other' || option.text.toLowerCase() === 'other';
+                                // Show textbox if marker is present
+                                const checked = isOther
+                                    ? (value || []).includes('__other__')
+                                    : (value || []).includes(option.value);
+                                return (
+                                    <div key={index}>
+                                        <label className="flex items-center gap-3 cursor-pointer hover:bg-pink-50 p-2 rounded-lg transition-colors">
+                                            <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={e => {
+                                                    if (isOther) {
+                                                        handleOtherCheckboxToggle(question._id, e.target.checked);
+                                                    } else {
+                                                        handleCheckboxChange(question._id, option.value);
+                                                    }
+                                                }}
+                                                className="checkbox checkbox-primary checkbox-sm"
+                                            />
+                                            <span className="text-gray-700">{option.text}</span>
+                                        </label>
+                                        {isOther && (value || []).includes('__other__') && (
+                                            <input
+                                                type="text"
+                                                className="mt-2 input input-bordered w-full bg-pink-50 border-pink-200 focus:border-pink-400 rounded-2xl text-gray-800 placeholder-pink-400"
+                                                placeholder="Please specify..."
+                                                value={otherValue}
+                                                onChange={e => handleOtherCheckboxInput(question._id, e.target.value)}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </>
                 );
 
             default:
@@ -358,10 +455,6 @@ const HelloKittySurvey = () => {
                         <div className="mb-8 space-y-8">
                             {pageQuestions.map((question) => (
                                 <div key={question._id}>
-                                    <h2 className="text-xl font-bold text-pink-600 mb-4">
-                                        {question.questionText}
-                                        {question.isRequired && <span className="text-red-500 ml-1">*</span>}
-                                    </h2>
                                     {renderQuestion(question)}
                                 </div>
                             ))}

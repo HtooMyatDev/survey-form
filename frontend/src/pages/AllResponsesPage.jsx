@@ -54,7 +54,7 @@ const AllResponsesPage = () => {
             try {
                 const qs = await api.get('/questions');
                 setQuestions(qs.data);
-            } catch (_) {
+            } catch {
                 // ignore
             } finally {
                 fetchResponses();
@@ -89,7 +89,15 @@ const AllResponsesPage = () => {
         const filters = {};
         if (ageFilter) filters.age = ageFilter;
         if (occupationFilter) filters.occupation = occupationFilter;
-        if (genderFilter) filters.gender = genderFilter;
+        if (genderFilter) {
+            // Normalize gender filter value to match database format
+            if (genderFilter.toLowerCase() === 'prefer not to say') {
+                // Try both formats - the backend will handle both
+                filters.gender = 'prefer not to say';
+            } else {
+                filters.gender = genderFilter;
+            }
+        }
         fetchResponses(filters, 1);
     };
 
@@ -104,7 +112,15 @@ const AllResponsesPage = () => {
         const filters = {};
         if (ageFilter) filters.age = ageFilter;
         if (occupationFilter) filters.occupation = occupationFilter;
-        if (genderFilter) filters.gender = genderFilter;
+        if (genderFilter) {
+            // Normalize gender filter value to match database format
+            if (genderFilter.toLowerCase() === 'prefer not to say') {
+                // Try both formats - the backend will handle both
+                filters.gender = 'prefer not to say';
+            } else {
+                filters.gender = genderFilter;
+            }
+        }
         fetchResponses(filters, newPage);
     };
 
@@ -119,6 +135,36 @@ const AllResponsesPage = () => {
                 toast.error("Error deleting response");
             }
         }
+    };
+
+    const formatGenderDisplay = (gender) => {
+        if (!gender || gender === '') return 'N/A';
+
+        // Handle different possible formats
+        const lowerGender = gender.toLowerCase().trim();
+
+        if (lowerGender === 'male') return 'Male';
+        if (lowerGender === 'female') return 'Female';
+        if (lowerGender === 'prefer_not_to_say' || lowerGender === 'prefer not to say') {
+            return 'Prefer not to say';
+        }
+
+        // For any other values, capitalize first letter
+        return gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase();
+    };
+
+    const getGenderDisplayClass = (gender) => {
+        if (!gender || gender === '') return 'bg-gray-100 text-gray-800';
+
+        const lowerGender = gender.toLowerCase().trim();
+
+        if (lowerGender === 'female') return 'bg-pink-100 text-pink-800';
+        if (lowerGender === 'male') return 'bg-blue-100 text-blue-800';
+        if (lowerGender === 'prefer_not_to_say' || lowerGender === 'prefer not to say') {
+            return 'bg-gray-100 text-gray-800';
+        }
+
+        return 'bg-gray-100 text-gray-800';
     };
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
@@ -233,11 +279,11 @@ const AllResponsesPage = () => {
                                                 <td className="px-6 py-4 text-sm text-gray-700">
                                                     {(() => {
                                                         const g = getFieldFromResponse(res, 'gender');
-                                                        const val = (g === undefined || g === null || g === '') ? 'N/A' : g;
-                                                        const cls = val === 'female' ? 'bg-pink-100 text-pink-800' : val === 'male' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+                                                        const formattedGender = formatGenderDisplay(g);
+                                                        const cls = getGenderDisplayClass(g);
                                                         return (
-                                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${cls}`}>
-                                                                {val}
+                                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}`}>
+                                                                {formattedGender}
                                                             </span>
                                                         );
                                                     })()}
