@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import api from "../lib/axios";
@@ -103,15 +103,7 @@ const QuestionsPage = () => {
         }
     };
 
-    const handleToggleStatus = async (id) => {
-        try {
-            await api.put(`/questions/${id}/toggle`);
-            toast.success("Question status updated");
-            fetchQuestions();
-        } catch {
-            toast.error("Failed to update question status");
-        }
-    };
+    // Removed status column; toggle handler no longer needed
 
     const resetForm = () => {
         setFormData({
@@ -184,8 +176,10 @@ const QuestionsPage = () => {
                 <Topbar />
                 <div className="flex">
                     <Sidebar />
-                    <div className="flex-1 p-6 flex items-center justify-center">
-                        <span className="loading loading-spinner loading-lg"></span>
+                    <div className="max-w-7xl mx-auto flex-1 min-w-0 overflow-hidden p-6 flex items-center justify-center">
+                        <div className="p-6">
+                            <span className="loading loading-spinner loading-lg"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -197,7 +191,7 @@ const QuestionsPage = () => {
             <Topbar />
             <div className="flex">
                 <Sidebar />
-                <div className="flex-1 p-6">
+                <div className="max-w-7xl mx-auto flex-1 p-6 min-w-0">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-3xl font-bold">🎀 Manage Questions</h1>
                         <button
@@ -361,85 +355,62 @@ const QuestionsPage = () => {
                     )}
 
                     {/* Questions List */}
-                    <div className="bg-white rounded-3xl shadow-lg border border-pink-200 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full">
-                                <thead className="bg-gradient-to-r from-pink-100 to-pink-200">
-                                    <tr>
-                                        <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Order</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Question</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Type</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Category</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Status</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-pink-100">
-                                    {questions.map((question) => (
-                                        <tr key={question._id} className="hover:bg-pink-50">
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                                {question.order}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-700">
-                                                <div className="max-w-md truncate" title={question.questionText}>
-                                                    {question.questionText}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${question.questionType === 'text' ? 'bg-blue-100 text-blue-800' :
-                                                    question.questionType === 'radio' ? 'bg-green-100 text-green-800' :
-                                                        'bg-purple-100 text-purple-800'
-                                                    }`}>
-                                                    {question.questionType}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-700 capitalize">
-                                                {question.category}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm">
+                    <div className="overflow-x-auto bg-white rounded-3xl shadow-lg border border-pink-200">
+                        <table className="min-w-full table-auto">
+                            <thead className="bg-gradient-to-r from-pink-100 to-pink-200">
+                                <tr>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Order</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Question</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Type</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Category</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-pink-100">
+                                {questions.map((question) => (
+                                    <tr key={question._id} className="hover:bg-pink-50">
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                            {question.order}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-700">
+                                            <div className="max-w-md truncate" title={question.questionText}>
+                                                {question.questionText}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${question.questionType === 'text' ? 'bg-blue-100 text-blue-800' :
+                                                question.questionType === 'radio' ? 'bg-green-100 text-green-800' :
+                                                    'bg-purple-100 text-purple-800'
+                                                }`}>
+                                                {question.questionType}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-700 capitalize">
+                                            {question.category}
+                                        </td>
+
+                                        <td className="px-6 py-4 text-sm">
+                                            <div className="flex items-center space-x-2">
                                                 <button
-                                                    onClick={() => handleToggleStatus(question._id)}
-                                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${question.isActive
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-red-100 text-red-800'
-                                                        }`}
+                                                    onClick={() => handleEdit(question)}
+                                                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
                                                 >
-                                                    {question.isActive ? (
-                                                        <>
-                                                            <Eye size={12} className="mr-1" />
-                                                            Active
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <EyeOff size={12} className="mr-1" />
-                                                            Inactive
-                                                        </>
-                                                    )}
+                                                    <Edit size={14} className="mr-1" />
+                                                    Edit
                                                 </button>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm">
-                                                <div className="flex items-center space-x-2">
-                                                    <button
-                                                        onClick={() => handleEdit(question)}
-                                                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
-                                                    >
-                                                        <Edit size={14} className="mr-1" />
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(question._id)}
-                                                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
-                                                    >
-                                                        <Trash2 size={14} className="mr-1" />
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                                <button
+                                                    onClick={() => handleDelete(question._id)}
+                                                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
+                                                >
+                                                    <Trash2 size={14} className="mr-1" />
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

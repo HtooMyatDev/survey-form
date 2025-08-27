@@ -5,8 +5,10 @@ import api from "../lib/axios"
 const DashboardPage = () => {
     const [countResponses, setCountResponses] = useState(null);
     const [maleCount, setMaleCount] = useState(0);
-    const [topStress, setTopStress] = useState("");
+    // const [topStress, setTopStress] = useState("");
     const [topCoping, setTopCoping] = useState("");
+    const [q8TopAnswer, setQ8TopAnswer] = useState("");
+    const [q8Counts, setQ8Counts] = useState({});
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -43,8 +45,8 @@ const DashboardPage = () => {
                         }
                     });
                 });
-                const topStress = Object.entries(stressAnswerCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
-                setTopStress(topStress);
+                // const topStress = Object.entries(stressAnswerCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+                // setTopStress(topStress);
 
                 // Coping (most common answer across all coping questions)
                 const copingAnswerCounts = {};
@@ -64,6 +66,42 @@ const DashboardPage = () => {
                 });
                 const topCoping = Object.entries(copingAnswerCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
                 setTopCoping(topCoping);
+
+                // Question 8 analysis: "Have you ever experienced a mental illness? If so, which one mostly?"
+                const q8Matcher = (q) => {
+                    if (q.order === 8) return true;
+                    const text = (q.questionText || "").toLowerCase();
+                    return text.includes("have you ever experienced a mental illness")
+                        || text.includes("which one mostly");
+                };
+                const q8 = questions.find(q8Matcher);
+                if (q8) {
+                    const counts = {};
+                    responses.forEach(r => {
+                        // Prefer answers by question id, then by fieldKey
+                        const byId = r.answers?.[q8._id];
+                        const byField = q8.fieldKey ? (r.answers?.[q8.fieldKey] ?? r[q8.fieldKey]) : undefined;
+                        const ans = byId ?? byField;
+                        if (!ans || (Array.isArray(ans) && ans.length === 0)) return;
+                        if (Array.isArray(ans)) {
+                            ans.forEach(a => {
+                                const key = String(a).trim();
+                                if (!key) return;
+                                counts[key] = (counts[key] || 0) + 1;
+                            });
+                        } else {
+                            const key = String(ans).trim();
+                            if (!key) return;
+                            counts[key] = (counts[key] || 0) + 1;
+                        }
+                    });
+                    setQ8Counts(counts);
+                    const top = Object.entries(counts).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+                    setQ8TopAnswer(top);
+                } else {
+                    setQ8Counts({});
+                    setQ8TopAnswer("N/A");
+                }
             } catch (err) {
                 console.log(err);
             }
@@ -88,7 +126,7 @@ const DashboardPage = () => {
                             Here’s your dashboard filled with sparkly data and sweet summaries.
                         </p>
 
-                        {/* Dummy stats */}
+                        {/* Key stats */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
                                 <h3 className="text-lg font-semibold">Total Responses</h3>
@@ -100,13 +138,31 @@ const DashboardPage = () => {
                             </div>
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
                                 <h3 className="text-lg font-semibold">Highest Stress</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">{topStress}</p>
+                                <p className="text-3xl font-bold text-pink-600 mt-2">{q8TopAnswer}</p>
                             </div>
                             <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
                                 <h3 className="text-lg font-semibold">Coping</h3>
                                 <p className="text-3xl font-bold text-pink-600 mt-2">{topCoping}</p>
                             </div>
                         </div>
+                        {/* Q8 breakdown */}
+                        <section className="mt-6 bg-white rounded-3xl border border-pink-200 p-6 shadow-md">
+                            <h3 className="text-lg font-semibold mb-4">Question 8 Breakdown</h3>
+                            {Object.keys(q8Counts).length === 0 ? (
+                                <p className="text-sm text-gray-600">No data available.</p>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {Object.entries(q8Counts)
+                                        .sort((a, b) => b[1] - a[1])
+                                        .map(([label, count]) => (
+                                            <div key={label} className="flex items-center justify-between bg-pink-50 border border-pink-200 rounded-xl px-4 py-2">
+                                                <span className="text-sm text-gray-700 truncate pr-2" title={label}>{label}</span>
+                                                <span className="text-sm font-semibold text-pink-700">{count}</span>
+                                            </div>
+                                        ))}
+                                </div>
+                            )}
+                        </section>
                     </section>
 
                     {/* Footer */}
