@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import api from "../lib/axios";
 import toast from "react-hot-toast";
+import Button from "../components/common/Button";
 
 const QuestionsPage = () => {
     const [questions, setQuestions] = useState([]);
@@ -243,155 +244,195 @@ const QuestionsPage = () => {
                     {/* Question Form */}
                     {showForm && (
                         <div className="bg-white rounded-3xl p-4 sm:p-6 mb-6 shadow-lg border border-pink-200">
-                            <h2 className="text-lg sm:text-xl font-bold mb-4">
-                                {editingQuestion ? "Edit Question" : "Add New Question"}
+                            <h2 className="text-xl sm:text-2xl font-bold text-pink-700 mb-6 flex items-center gap-2">
+                                {editingQuestion ? "✨ Update Your Question" : "🌱 Create a New Question"}
                             </h2>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">Question Text</label>
-                                    <textarea
-                                        value={formData.questionText}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, questionText: e.target.value }))}
-                                        className="w-full p-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm"
-                                        rows="3"
-                                        required
-                                    />
+                            <form onSubmit={handleSubmit} className="space-y-8">
+                                {/* Section 1: Question Content */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 text-pink-600 font-bold border-b border-pink-100 pb-2">
+                                        <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">1</div>
+                                        <h3>What would you like to ask?</h3>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Question Text 🎀</label>
+                                        <textarea
+                                            value={formData.questionText}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, questionText: e.target.value }))}
+                                            placeholder="Example: How are you feeling today?"
+                                            className="w-full p-4 bg-pink-50 border-2 border-pink-100 rounded-2xl focus:border-pink-300 focus:ring-4 focus:ring-pink-50 focus:outline-none text-gray-800 transition-all min-h-[100px]"
+                                            required
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Question Type</label>
+                                {/* Section 2: Response Type */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 text-pink-600 font-bold border-b border-pink-100 pb-2">
+                                            <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">2</div>
+                                            <h3>How should they answer?</h3>
+                                        </div>
                                         <div className="relative group">
                                             <select
                                                 value={formData.questionType}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, questionType: e.target.value }))}
-                                                className="w-full h-12 pl-4 pr-10 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm appearance-none bg-white transition-all shadow-sm"
+                                                className="w-full h-12 pl-4 pr-10 bg-pink-50 border-2 border-pink-100 rounded-2xl focus:border-pink-300 focus:ring-4 focus:ring-pink-50 focus:outline-none text-sm appearance-none text-gray-800 transition-all cursor-pointer"
                                             >
-                                                <option value="text">Text Input</option>
-                                                <option value="radio">Radio Buttons</option>
-                                                <option value="checkbox">Checkboxes</option>
+                                                <option value="text">Text (Type an answer)</option>
+                                                <option value="radio">Single Choice (Select one)</option>
+                                                <option value="checkbox">Multiple Choice (Select many)</option>
                                             </select>
-                                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400 pointer-events-none group-hover:text-pink-500 transition-colors" />
+                                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-pink-400 pointer-events-none group-hover:text-pink-500 transition-colors" />
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Category</label>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 text-pink-600 font-bold border-b border-pink-100 pb-2">
+                                            <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">3</div>
+                                            <h3>Which section is this in?</h3>
+                                        </div>
                                         <div className="relative group">
                                             <select
                                                 value={formData.category}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                                                className="w-full h-12 pl-4 pr-10 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm appearance-none bg-white transition-all shadow-sm"
+                                                className="w-full h-12 pl-4 pr-10 bg-pink-50 border-2 border-pink-100 rounded-2xl focus:border-pink-300 focus:ring-4 focus:ring-pink-50 focus:outline-none text-sm appearance-none text-gray-800 transition-all cursor-pointer"
                                             >
-                                                <option value="demographics">Demographics</option>
-                                                <option value="stress">Stress</option>
-                                                <option value="coping">Coping</option>
-                                                <option value="general">General</option>
+                                                <option value="demographics">About the Person (Demographics)</option>
+                                                <option value="stress">Stress & Anxiety</option>
+                                                <option value="coping">Coping Strategies</option>
+                                                <option value="general">General Feelings</option>
                                             </select>
-                                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400 pointer-events-none group-hover:text-pink-500 transition-colors" />
+                                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-pink-400 pointer-events-none group-hover:text-pink-500 transition-colors" />
                                         </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Order</label>
-                                        <input
-                                            type="number"
-                                            value={formData.order}
-                                            onChange={(e) => {
-                                                const val = parseInt(e.target.value);
-                                                setFormData(prev => ({ ...prev, order: isNaN(val) ? 0 : val }));
-                                                if (isOrderTaken(val)) {
-                                                    setOrderError(`Order number ${val} is already used. Choose a different number.`);
-                                                } else {
-                                                    setOrderError("");
-                                                }
-                                            }}
-                                            className="w-full h-12 px-4 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm shadow-sm transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            min="0"
-                                        />
-                                        {orderError && (
-                                            <p className="text-xs text-red-500 mt-1">{orderError}</p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Field Key (optional)</label>
-                                        <input
-                                            type="text"
-                                            value={formData.fieldKey}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, fieldKey: e.target.value.trim() }))}
-                                            placeholder="e.g., age"
-                                            className="w-full h-12 px-4 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm shadow-sm transition-all"
-                                        />
-                                        <p className="text-xs text-pink-400 mt-1">Use a stable key like "age" to enable special validations.</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="isRequired"
-                                        checked={formData.isRequired}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, isRequired: e.target.checked }))}
-                                        className="mr-2"
-                                    />
-                                    <label htmlFor="isRequired" className="text-sm font-medium">Required Question</label>
+                                {/* Section 3: Advanced Settings */}
+                                <div className="space-y-4 pt-4">
+                                    <div className="flex items-center gap-2 text-pink-600 font-bold border-b border-pink-100 pb-2">
+                                        <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">4</div>
+                                        <h3>Survey Settings</h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-pink-500 uppercase tracking-wider mb-2">Display Order</label>
+                                            <input
+                                                type="number"
+                                                value={formData.order}
+                                                onChange={(e) => {
+                                                    const val = parseInt(e.target.value);
+                                                    setFormData(prev => ({ ...prev, order: isNaN(val) ? 0 : val }));
+                                                    if (isOrderTaken(val)) {
+                                                        setOrderError(`Position ${val} is already occupied.`);
+                                                    } else {
+                                                        setOrderError("");
+                                                    }
+                                                }}
+                                                className="w-full h-12 px-4 bg-pink-50 border-2 border-pink-100 rounded-2xl focus:border-pink-300 focus:ring-4 focus:ring-pink-50 focus:outline-none text-sm text-gray-800 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                min="0"
+                                            />
+                                            {orderError && (
+                                                <p className="text-xs text-red-500 mt-1">{orderError}</p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-pink-500 uppercase tracking-wider mb-2">Logic Key (Internal)</label>
+                                            <input
+                                                type="text"
+                                                value={formData.fieldKey}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, fieldKey: e.target.value.trim() }))}
+                                                placeholder="e.g., age"
+                                                className="w-full h-12 px-4 bg-pink-50 border-2 border-pink-100 rounded-2xl focus:border-pink-300 focus:ring-4 focus:ring-pink-50 focus:outline-none text-sm text-gray-800 transition-all"
+                                            />
+                                            <p className="text-[10px] text-pink-400 mt-1 leading-tight">Optional. Helps the dashboard identify specific data like age.</p>
+                                        </div>
+                                        <div className="flex items-center pt-6">
+                                            <label className="flex items-center gap-3 cursor-pointer group">
+                                                <div className="relative">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formData.isRequired}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, isRequired: e.target.checked }))}
+                                                        className="checkbox checkbox-primary rounded-lg border-2"
+                                                    />
+                                                </div>
+                                                <span className="text-sm font-semibold text-gray-700 group-hover:text-pink-600 transition-colors">They MUST answer this</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {(formData.questionType === 'radio' || formData.questionType === 'checkbox') && (
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Options</label>
-                                        <div className="space-y-2">
-                                            {optionError && (
-                                                <div className="text-xs text-red-500 mb-2">{optionError}</div>
-                                            )}
-                                            {formData.options.map((option, index) => (
-                                                <div key={index} className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Option text"
-                                                        value={option.text}
-                                                        onChange={(e) => updateOption(index, 'text', e.target.value)}
-                                                        className="flex-1 p-2 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm"
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeOption(index)}
-                                                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shrink-0"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            ))}
+                                    <div className="space-y-4 pt-4 border-t-2 border-pink-50">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2 text-pink-600 font-bold">
+                                                <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">5</div>
+                                                <h3>Possible Answers</h3>
+                                            </div>
                                             <button
                                                 type="button"
                                                 onClick={addOption}
-                                                className="px-4 py-2 bg-pink-100 text-pink-700 rounded-lg hover:bg-pink-200 text-sm"
+                                                className="px-4 py-2 bg-pink-500 text-white rounded-full hover:bg-pink-600 text-xs font-bold transition-all shadow-sm active:scale-95"
                                             >
-                                                Add Option
+                                                + Add New Option
                                             </button>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {optionError && (
+                                                <div className="col-span-full text-xs text-red-500 animate-pulse">{optionError}</div>
+                                            )}
+                                            {formData.options.map((option, index) => (
+                                                <div key={index} className="flex gap-2 group">
+                                                    <div className="relative flex-1">
+                                                        <input
+                                                            type="text"
+                                                            placeholder={`Option ${index + 1}`}
+                                                            value={option.text}
+                                                            onChange={(e) => updateOption(index, 'text', e.target.value)}
+                                                            className="w-full p-3 bg-pink-50 border-2 border-pink-100 rounded-xl focus:border-pink-300 focus:outline-none text-sm text-gray-800 transition-all"
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeOption(index)}
+                                                        className="w-10 h-11 bg-red-100 text-red-500 rounded-xl hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shrink-0"
+                                                        title="Remove this option"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {formData.options.length === 0 && (
+                                                <div className="col-span-full py-8 text-center border-2 border-dashed border-pink-100 rounded-2xl text-pink-300 text-sm italic">
+                                                    Click 'Add New Option' to start building your choices!
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="flex flex-col sm:flex-row gap-2">
-                                    <button
+                                <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t-2 border-pink-50">
+                                    <Button
                                         type="submit"
-                                        className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 text-sm w-full sm:w-auto"
+                                        variant="primary"
+                                        className="flex-1 sm:flex-none"
                                         disabled={!!optionError}
                                     >
-                                        {editingQuestion ? "Update Question" : "Create Question"}
-                                    </button>
-                                    <button
+                                        {editingQuestion ? "✨ Update Question" : "💝 Create Question"}
+                                    </Button>
+                                    <Button
                                         type="button"
+                                        variant="secondary"
+                                        className="flex-1 sm:flex-none"
                                         onClick={() => {
                                             setShowForm(false);
                                             setEditingQuestion(null);
                                             resetForm();
                                         }}
-                                        className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm w-full sm:w-auto"
                                     >
                                         Cancel
-                                    </button>
+                                    </Button>
                                 </div>
                             </form>
                         </div>
