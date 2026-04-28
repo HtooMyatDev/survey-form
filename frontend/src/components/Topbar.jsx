@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X, Ribbon, Cat, Heart } from "lucide-react";
 import Button from './common/Button';
 
 const Topbar = ({ onMenuToggle }) => {
@@ -28,7 +28,9 @@ const Topbar = ({ onMenuToggle }) => {
                     {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-pink-700">🎀 Survey Admin</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-pink-700 flex items-center gap-2">
+                        <Ribbon className="w-6 h-6 sm:w-8 sm:h-8" /> Survey Admin
+                    </h1>
                     <p className="text-xs sm:text-sm text-pink-600">Manage your psychology survey</p>
                 </div>
             </div>
@@ -48,9 +50,13 @@ const Topbar = ({ onMenuToggle }) => {
             <dialog id="logout_confirmation_modal" className="modal backdrop-blur-sm">
                 <div className="modal-box bg-white border-2 border-pink-200 rounded-3xl shadow-2xl p-6 sm:p-8">
                     <div className="text-center mb-6">
-                        <div className="text-4xl mb-4">😿</div>
-                        <h3 className="font-bold text-xl text-pink-700">Leaving so soon?</h3>
-                        <p className="py-2 text-gray-600">Are you sure you want to logout? We'll miss you! 💕</p>
+                    <div className="flex justify-center mb-4">
+                        <Cat className="w-16 h-16 text-pink-400" />
+                    </div>
+                    <h3 className="font-bold text-xl text-pink-700">Leaving so soon?</h3>
+                    <p className="py-2 text-gray-600 flex items-center justify-center gap-2">
+                        Are you sure you want to logout? We'll miss you! <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
+                    </p>
                     </div>
                     <div className="modal-action flex w-full justify-center">
                         <form method="dialog" className="flex gap-3 w-full sm:w-auto">

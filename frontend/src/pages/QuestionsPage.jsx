@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, ChevronDown } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronDown, Sparkles, Sprout, Ribbon, Heart } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import api from "../lib/axios";
@@ -245,7 +245,17 @@ const QuestionsPage = () => {
                     {showForm && (
                         <div className="bg-white rounded-3xl p-4 sm:p-6 mb-6 shadow-lg border border-pink-200">
                             <h2 className="text-xl sm:text-2xl font-bold text-pink-700 mb-6 flex items-center gap-2">
-                                {editingQuestion ? "✨ Update Your Question" : "🌱 Create a New Question"}
+                                {editingQuestion ? (
+                                    <>
+                                        <Sparkles className="w-6 h-6 text-pink-400" />
+                                        Update Your Question
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sprout className="w-6 h-6 text-pink-400" />
+                                        Create a New Question
+                                    </>
+                                )}
                             </h2>
                             <form onSubmit={handleSubmit} className="space-y-8">
                                 {/* Section 1: Question Content */}
@@ -255,7 +265,9 @@ const QuestionsPage = () => {
                                         <h3>What would you like to ask?</h3>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Question Text 🎀</label>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                            Question Text <Ribbon className="w-4 h-4 text-pink-400" />
+                                        </label>
                                         <textarea
                                             value={formData.questionText}
                                             onChange={(e) => setFormData(prev => ({ ...prev, questionText: e.target.value }))}
@@ -416,10 +428,20 @@ const QuestionsPage = () => {
                                     <Button
                                         type="submit"
                                         variant="primary"
-                                        className="flex-1 sm:flex-none"
+                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2"
                                         disabled={!!optionError}
                                     >
-                                        {editingQuestion ? "✨ Update Question" : "💝 Create Question"}
+                                        {editingQuestion ? (
+                                            <>
+                                                <Sparkles className="w-4 h-4" />
+                                                Update Question
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Heart className="w-4 h-4" />
+                                                Create Question
+                                            </>
+                                        )}
                                     </Button>
                                     <Button
                                         type="button"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Star, Sparkles, Home, Download, Share2 } from 'lucide-react';
+import { Heart, Star, Sparkles, Home, Download, Share2, Ribbon, Flower } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom";
 
 // Success page component for survey completion
@@ -111,23 +111,27 @@ const HelloKittySuccess = () => {
 
                         {/* Success Messages */}
                         <div className="space-y-6 relative z-10">
-                            <h1 className="text-2xl sm:text-4xl font-bold text-pink-600 mb-4">
-                                You have contributed! 🎀
+                            <h1 className="text-2xl sm:text-4xl font-bold text-pink-600 mb-4 flex items-center justify-center gap-3">
+                                You have contributed! <Ribbon className="w-8 h-8 text-pink-400" />
                             </h1>
 
                             <div className="space-y-4">
                                 <p className="text-lg sm:text-xl text-pink-500 font-medium">
                                     Thank you for completing our survey!
                                 </p>
-                                <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-lg mx-auto">
-                                    Your responses are super important and will help us better understand mental health awareness.
-                                    You're amazing for taking the time to share your thoughts! 💕
+                                <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-lg mx-auto flex flex-col items-center gap-1">
+                                    <span>Your responses are super important and will help us better understand mental health awareness.</span>
+                                    <span className="flex items-center gap-2">
+                                        You're amazing for taking the time to share your thoughts! <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
+                                    </span>
                                 </p>
                             </div>
 
                             {/* Stats or confirmation */}
                             <div className="bg-pink-50 rounded-2xl p-6 border border-pink-200 mx-auto max-w-md">
-                                <h3 className="text-pink-600 font-semibold mb-3">Survey Complete! ✨</h3>
+                                <h3 className="text-pink-600 font-semibold mb-3 flex items-center justify-center gap-2">
+                                    Survey Complete! <Sparkles className="w-4 h-4 text-pink-400" />
+                                </h3>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div className="text-center">
                                         {/* Dynamically show how many questions were answered */}
@@ -149,8 +153,11 @@ const HelloKittySuccess = () => {
                                     <span className="text-pink-600 font-semibold">Mental Health Matters</span>
                                     <Heart size={20} className="text-pink-500 ml-2" fill="currentColor" />
                                 </div>
-                                <p className="text-sm text-gray-600 leading-relaxed">
-                                    Remember, it's okay to not be okay sometimes. Taking care of your mental health is just as important as taking care of your physical health. You're brave and wonderful! 🌸
+                                <p className="text-sm text-gray-600 leading-relaxed flex flex-col items-center gap-1">
+                                    <span>Remember, it's okay to not be okay sometimes. Taking care of your mental health is just as important as taking care of your physical health.</span>
+                                    <span className="flex items-center gap-2">
+                                        You're brave and wonderful! <Flower className="w-4 h-4 text-pink-400" />
+                                    </span>
                                 </p>
                             </div>
 
@@ -183,7 +190,9 @@ const HelloKittySuccess = () => {
                             {/* Footer message */}
                             <div className="text-center text-sm text-pink-400 mt-8 pt-6 border-t border-pink-200">
                                 <p>For future psychologist</p>
-                                <p className="mt-1">From future developer! 🌟</p>
+                                <p className="mt-1 flex items-center justify-center gap-2">
+                                    From future developer! <Star className="w-4 h-4 text-pink-400 fill-pink-400" />
+                                </p>
                             </div>
                         </div>
                     </div>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Topbar from "../components/Topbar"
-import Sidebar from "../components/Sidebar"
-import api from "../lib/axios"
+import Topbar from "../components/Topbar";
+import Sidebar from "../components/Sidebar";
+import api from "../lib/axios";
+import { Heart } from "lucide-react";
+
 const DashboardPage = () => {
     const [countResponses, setCountResponses] = useState(null);
     const [maleCount, setMaleCount] = useState(0);
@@ -123,7 +125,9 @@ const DashboardPage = () => {
                 {/* Main Content */}
                 <main className="flex-1 p-3 sm:p-6 min-w-0">
                     <section className="bg-white rounded-3xl border border-pink-200 p-4 sm:p-6 shadow-md">
-                        <h2 className="text-lg sm:text-xl font-bold mb-4">Welcome Back, Cutie Admin! 💕</h2>
+                        <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
+                            Welcome Back, Cutie Admin! <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />
+                        </h2>
                         <p className="text-sm text-gray-600 mb-6">
                             Here's your dashboard filled with sparkly data and sweet summaries.
                         </p>

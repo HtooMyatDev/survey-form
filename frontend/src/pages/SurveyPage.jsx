@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Star, Sparkles, Send, ArrowLeft } from 'lucide-react';
+import { Heart, Star, Sparkles, Send, ArrowLeft, Ribbon } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import api from "../lib/axios.js"
 import { useNavigate } from "react-router"
@@ -195,8 +195,9 @@ const HelloKittySurvey = () => {
         try {
             const processedFormData = processFormDataForSubmit();
             await api.post("/responses", processedFormData);
-            toast.success('Thank you for sharing, cutie! Your responses help us understand mental health better! 💕', {
+            toast.success('Thank you for sharing, cutie! Your responses help us understand mental health better!', {
                 duration: 5000,
+                icon: '💖',
                 style: {
                     background: '#FFB6C1',
                     color: '#FF1493',
@@ -431,7 +432,9 @@ const HelloKittySurvey = () => {
                             </div>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-2">Mental Health Survey</h1>
-                        <p className="text-pink-400 text-sm">Help us understand mental health awareness 🎀</p>
+                        <p className="text-pink-400 text-sm flex items-center justify-center gap-2">
+                            Help us understand mental health awareness <Ribbon className="w-4 h-4" />
+                        </p>
                     </div>
                 </div>
 
