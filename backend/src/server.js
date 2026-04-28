@@ -41,15 +41,20 @@ app.use(express.json());
 app.use(logger); // Log requests in production
 // app.use(rateLimiter); // Temporarily disable to debug 405 issue
 
-// Diagnostic route
-app.all("/api/ping", (req, res) => {
+// Routes
+const apiRouter = express.Router();
+apiRouter.use("/responses", responseRoutes);
+apiRouter.use("/auth", authRoutes);
+apiRouter.use("/questions", questionRoutes);
+
+// Diagnostic route on the router
+apiRouter.all("/ping", (req, res) => {
     res.json({ status: "pong", method: req.method, timestamp: new Date().toISOString() });
 });
 
-// Routes
-app.use("/api/responses", responseRoutes)
-app.use("/api/auth", authRoutes)
-app.use("/api/questions", questionRoutes)
+// Mount the router at both /api (local/traditional) and / (Vercel service)
+app.use("/api", apiRouter);
+app.use("/", apiRouter);
 
 
 // test route
