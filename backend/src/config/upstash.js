@@ -1,9 +1,6 @@
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
-import dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
+import "./env.js";
 
 const rateLimit = new Ratelimit({
     // Connect to Upstash Redis

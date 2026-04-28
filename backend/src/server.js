@@ -1,8 +1,8 @@
 // Import required modules
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import path from "path";
+import "./config/env.js"; // Initialize environment variables first
 
 import responseRoutes from "./routers/responseRoutes.js"
 import authRoutes from "./routers/authRoutes.js"
@@ -12,9 +12,6 @@ import userSeeder from "./userSeeder.js";
 
 import { connectDB } from "./config/db.js"
 import { rateLimiter } from "./middleware/rateLimiter.js"
-
-// Load environment variables
-dotenv.config()
 
 // Create Express app
 const app = express();
