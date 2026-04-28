@@ -39,7 +39,7 @@ app.options("*", cors());
 
 app.use(express.json());
 app.use(logger); // Log requests in production
-app.use(rateLimiter);
+// app.use(rateLimiter); // Temporarily disable to debug 405 issue
 
 // Diagnostic route
 app.all("/api/ping", (req, res) => {
