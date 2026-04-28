@@ -1,2 +1,32 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* Global float animation used across pages */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Hide floating decorative elements on very small screens for cleaner UX */
+@media (max-width: 480px) {
+  .absolute.text-pink-300,
+  .absolute.text-pink-400,
+  .absolute.text-pink-200 {
+    display: none;
+  }
+}
+
+/* Ensure inputs don't zoom on iOS */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Utility for text truncation with multiple lines */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

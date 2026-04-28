@@ -9,6 +9,8 @@ const DashboardPage = () => {
     const [topCoping, setTopCoping] = useState("");
     const [q8TopAnswer, setQ8TopAnswer] = useState("");
     const [q8Counts, setQ8Counts] = useState({});
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -111,42 +113,42 @@ const DashboardPage = () => {
 
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
 
-            <Topbar />
+            <Topbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
             {/* Sidebar + Main */}
-            <div className="flex">
-                <Sidebar />
+            <div className="flex flex-1">
+                <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
                 {/* Main Content */}
-                <main className="flex-1 p-6">
-                    <section className="bg-white rounded-3xl border border-pink-200 p-6 shadow-md">
-                        <h2 className="text-xl font-bold mb-4">Welcome Back, Cutie Admin! 💕</h2>
+                <main className="flex-1 p-3 sm:p-6 min-w-0">
+                    <section className="bg-white rounded-3xl border border-pink-200 p-4 sm:p-6 shadow-md">
+                        <h2 className="text-lg sm:text-xl font-bold mb-4">Welcome Back, Cutie Admin! 💕</h2>
                         <p className="text-sm text-gray-600 mb-6">
-                            Here’s your dashboard filled with sparkly data and sweet summaries.
+                            Here's your dashboard filled with sparkly data and sweet summaries.
                         </p>
 
                         {/* Key stats */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Total Responses</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">{countResponses}</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                            <div className="bg-pink-50 p-3 sm:p-4 rounded-2xl shadow-sm border border-pink-200">
+                                <h3 className="text-sm sm:text-lg font-semibold">Total Responses</h3>
+                                <p className="text-2xl sm:text-3xl font-bold text-pink-600 mt-2">{countResponses}</p>
                             </div>
-                            <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Male Participants</h3>
-                                <p className="text-3xl font-bold text-blue-600 mt-2">{maleCount}</p>
+                            <div className="bg-pink-50 p-3 sm:p-4 rounded-2xl shadow-sm border border-pink-200">
+                                <h3 className="text-sm sm:text-lg font-semibold">Male Participants</h3>
+                                <p className="text-2xl sm:text-3xl font-bold text-blue-600 mt-2">{maleCount}</p>
                             </div>
-                            <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Highest Stress</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">{q8TopAnswer}</p>
+                            <div className="bg-pink-50 p-3 sm:p-4 rounded-2xl shadow-sm border border-pink-200 min-w-0">
+                                <h3 className="text-sm sm:text-lg font-semibold">Highest Stress</h3>
+                                <p className="text-lg sm:text-3xl font-bold text-pink-600 mt-2 truncate" title={q8TopAnswer}>{q8TopAnswer}</p>
                             </div>
-                            <div className="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-200">
-                                <h3 className="text-lg font-semibold">Coping</h3>
-                                <p className="text-3xl font-bold text-pink-600 mt-2">{topCoping}</p>
+                            <div className="bg-pink-50 p-3 sm:p-4 rounded-2xl shadow-sm border border-pink-200 min-w-0">
+                                <h3 className="text-sm sm:text-lg font-semibold">Coping</h3>
+                                <p className="text-lg sm:text-3xl font-bold text-pink-600 mt-2 truncate" title={topCoping}>{topCoping}</p>
                             </div>
                         </div>
                         {/* Q8 breakdown */}
-                        <section className="mt-6 bg-white rounded-3xl border border-pink-200 p-6 shadow-md">
+                        {/* <section className="mt-6 bg-white rounded-3xl border border-pink-200 p-4 sm:p-6 shadow-md">
                             <h3 className="text-lg font-semibold mb-4">Question 8 Breakdown</h3>
                             {Object.keys(q8Counts).length === 0 ? (
                                 <p className="text-sm text-gray-600">No data available.</p>
@@ -155,21 +157,19 @@ const DashboardPage = () => {
                                     {Object.entries(q8Counts)
                                         .sort((a, b) => b[1] - a[1])
                                         .map(([label, count]) => (
-                                            <div key={label} className="flex items-center justify-between bg-pink-50 border border-pink-200 rounded-xl px-4 py-2">
-                                                <span className="text-sm text-gray-700 truncate pr-2" title={label}>{label}</span>
-                                                <span className="text-sm font-semibold text-pink-700">{count}</span>
+                                            <div key={label} className="flex items-center justify-between bg-pink-50 border border-pink-200 rounded-xl px-3 sm:px-4 py-2">
+                                                <span className="text-xs sm:text-sm text-gray-700 truncate pr-2" title={label}>{label}</span>
+                                                <span className="text-xs sm:text-sm font-semibold text-pink-700 whitespace-nowrap">{count}</span>
                                             </div>
                                         ))}
                                 </div>
                             )}
-                        </section>
-                    </section>
+                        </section> */}
 
-                    {/* Footer */}
-                    {/* <footer className="mt-10 text-center text-sm text-pink-400">
-                        <p>Made with 💖 and bubble tea by Hello Kitty's team</p>
-                    </footer> */}
+
+                    </section>
                 </main>
+
             </div>
         </div>
     );

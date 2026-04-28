@@ -50,7 +50,7 @@ const HelloKittySuccess = () => {
             {/* Success Page Content */}
             <div className="flex items-center justify-center min-h-screen p-4">
                 <div className="max-w-2xl mx-auto text-center">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-pink-200 p-12 relative">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl border-2 border-pink-200 p-6 sm:p-12 relative">
 
                         {/* Confetti effect */}
                         <div className="absolute inset-0 pointer-events-none">
@@ -75,8 +75,8 @@ const HelloKittySuccess = () => {
                         </div>
 
                         {/* Main Hello Kitty Success Avatar */}
-                        <div className="mb-8 relative">
-                            <div className="w-32 h-32 bg-gradient-to-br from-pink-200 to-pink-300 rounded-full border-4 border-pink-400 mx-auto mb-6 flex items-center justify-center shadow-lg relative overflow-hidden">
+                        <div className="mb-6 sm:mb-8 relative">
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-200 to-pink-300 rounded-full border-4 border-pink-400 mx-auto mb-4 sm:mb-6 flex items-center justify-center shadow-lg relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-br from-pink-100 to-pink-200 rounded-full animate-pulse"></div>
                                 <div className="relative z-10">
                                     {/* Hello Kitty face */}
@@ -111,15 +111,15 @@ const HelloKittySuccess = () => {
 
                         {/* Success Messages */}
                         <div className="space-y-6 relative z-10">
-                            <h1 className="text-4xl font-bold text-pink-600 mb-4">
+                            <h1 className="text-2xl sm:text-4xl font-bold text-pink-600 mb-4">
                                 You have contributed! 🎀
                             </h1>
 
                             <div className="space-y-4">
-                                <p className="text-xl text-pink-500 font-medium">
+                                <p className="text-lg sm:text-xl text-pink-500 font-medium">
                                     Thank you for completing our survey!
                                 </p>
-                                <p className="text-gray-600 leading-relaxed max-w-lg mx-auto">
+                                <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-lg mx-auto">
                                     Your responses are super important and will help us better understand mental health awareness.
                                     You're amazing for taking the time to share your thoughts! 💕
                                 </p>

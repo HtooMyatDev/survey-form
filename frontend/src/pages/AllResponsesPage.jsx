@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Filter, Search, Trash2 } from "lucide-react";
+import { Eye, Filter, Search, Trash2, ChevronDown } from "lucide-react";
 import Sidebar from "../components/Sidebar"
 import Topbar from "../components/Topbar"
 import api from "../lib/axios"
@@ -15,6 +15,8 @@ const AllResponsesPage = () => {
     const [ageFilter, setAgeFilter] = useState("");
     const [occupationFilter, setOccupationFilter] = useState("");
     const [genderFilter, setGenderFilter] = useState("");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -166,96 +168,172 @@ const AllResponsesPage = () => {
 
         return 'bg-gray-100 text-gray-800';
     };
+
+    // Mobile card view for each response
+    const MobileResponseCard = ({ res, index }) => {
+        const ageVal = getFieldFromResponse(res, 'age');
+        const age = (() => {
+            if (ageVal === undefined || ageVal === null || ageVal === '') return 'N/A';
+            const num = parseInt(ageVal, 10);
+            return Number.isFinite(num) ? `${num} years` : 'N/A';
+        })();
+        const g = getFieldFromResponse(res, 'gender');
+        const formattedGender = formatGenderDisplay(g);
+        const cls = getGenderDisplayClass(g);
+        const occ = getFieldFromResponse(res, 'occupation');
+        const occupation = (occ === undefined || occ === null || occ === '') ? 'N/A' : occ;
+
+        return (
+            <div className="bg-white rounded-2xl border border-pink-200 p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-gray-500">
+                        {res.createdAt ? new Date(res.createdAt).toLocaleDateString() : 'N/A'}
+                    </span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}>
+                        {formattedGender}
+                    </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                    <div>
+                        <span className="text-pink-600 font-medium">Age:</span>{' '}
+                        <span className="text-gray-700">{age}</span>
+                    </div>
+                    <div>
+                        <span className="text-pink-600 font-medium">Qs:</span>{' '}
+                        <span className="text-gray-700">{res.totalQuestions ?? 'N/A'}</span>
+                    </div>
+                    <div className="col-span-2">
+                        <span className="text-pink-600 font-medium">Occupation:</span>{' '}
+                        <span className="text-gray-700">{occupation}</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Link
+                        to={`/details/${res._id}`}
+                        className="flex-1 text-center px-3 py-1.5 text-xs font-medium rounded-lg text-pink-700 bg-pink-100 hover:bg-pink-200 transition-colors"
+                    >
+                        <Eye size={14} className="inline mr-1" /> View
+                    </Link>
+                    <button
+                        onClick={() => handleDelete(res._id)}
+                        className="flex-1 text-center px-3 py-1.5 text-xs font-medium rounded-lg text-red-700 bg-red-100 hover:bg-red-200 transition-colors"
+                    >
+                        <Trash2 size={14} className="inline mr-1" /> Delete
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
-            <Topbar />
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
+            <Topbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
             {/* Sidebar + Main */}
-            <div className="flex">
-                <Sidebar />
-                <div className="max-w-7xl mx-auto flex-1 p-6">
-                    {loading && (
-                        <div className="flex text-center justify-center items-center min-h-screen">
-                            <span className="loading loading-spinner loading-sm"></span>
-                            💌 Loading Surveys...
-                        </div>
-                    )}
-                    <h1 className="text-3xl font-bold mb-4">🎀 All Survey Responses</h1>
+            <div className="flex flex-1">
+                <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+                <main className="flex-1 p-3 sm:p-6 min-w-0">
+
+                    <h1 className="text-2xl sm:text-3xl font-bold mb-4">🎀 All Survey Responses</h1>
 
                     {/* Filters */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Search size={20} />
-                            <input
-                                type="text"
-                                placeholder="Search responses..."
-                                className="p-2 border border-pink-200 rounded-full w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-pink-300"
-                            // (Optional: implement search logic)
-                            />
-                        </div>
-                        <div className="flex gap-2 w-full sm:w-auto">
-
-                            <select
-                                value={genderFilter}
-                                onChange={e => setGenderFilter(e.target.value)}
-                                className="p-2 pr-8 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 w-36 bg-white text-sm"
-                            >
-                                <option value="">All Genders</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="prefer not to say">Prefer not to say</option>
-                            </select>
-                            <input
-                                type="number"
-                                min="0"
-                                value={ageFilter}
-                                onChange={e => {
-                                    const v = e.target.value.replace(/[^0-9]/g, '');
-                                    setAgeFilter(v);
-                                }}
-                                placeholder="Filter by Age"
-                                className="p-2 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 w-32"
-                            />
-                            <input
-                                type="text"
-                                value={occupationFilter}
-                                onChange={e => setOccupationFilter(e.target.value)}
-                                placeholder="Filter by Occupation"
-                                className="p-2 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 w-48"
-                            />
+                    <div className="mb-6 space-y-3">
+                        {/* Search + Toggle */}
+                        <div className="flex items-center gap-3">
+                            <div className="relative flex-1 group">
+                                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 group-focus-within:text-pink-500 transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="Search responses..."
+                                    className="h-10 w-full pl-10 pr-4 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/80 backdrop-blur-sm text-sm transition-all shadow-sm"
+                                />
+                            </div>
                             <button
-                                className="flex items-center gap-2 bg-pink-400 text-white px-4 py-2 rounded-full hover:bg-pink-500"
-                                onClick={handleFilter}
-                                type="button"
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="sm:hidden flex items-center justify-center h-10 w-10 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-all shadow-sm active:scale-95 shrink-0"
                             >
                                 <Filter size={18} />
-                                Filter
-                            </button>
-                            <button
-                                className="flex items-center gap-2 bg-pink-100 text-pink-700 px-4 py-2 rounded-full hover:bg-pink-200 border border-pink-200"
-                                onClick={handleReset}
-                                type="button"
-                            >
-                                Reset
                             </button>
                         </div>
+
+                        {/* Filter controls - always visible on desktop, toggleable on mobile */}
+                        <div className={`flex flex-col sm:flex-row gap-3 sm:items-center ${showFilters ? 'flex' : 'hidden sm:flex'}`}>
+                            <div className="relative w-full sm:w-40 group">
+                                <select
+                                    value={genderFilter}
+                                    onChange={e => setGenderFilter(e.target.value)}
+                                    className="appearance-none h-10 w-full pl-4 pr-10 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-sm transition-all shadow-sm cursor-pointer"
+                                >
+                                    <option value="">All Genders</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="prefer not to say">Prefer not to say</option>
+                                </select>
+                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400 pointer-events-none group-hover:text-pink-500 transition-colors" />
+                            </div>
+                            <div className="w-full sm:w-28">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={ageFilter}
+                                    onChange={e => {
+                                        const v = e.target.value.replace(/[^0-9]/g, '');
+                                        setAgeFilter(v);
+                                    }}
+                                    placeholder="Age"
+                                    className="h-10 w-full px-4 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-sm transition-all"
+                                />
+                            </div>
+                            <div className="w-full sm:w-48">
+                                <input
+                                    type="text"
+                                    value={occupationFilter}
+                                    onChange={e => setOccupationFilter(e.target.value)}
+                                    placeholder="Occupation"
+                                    className="h-10 w-full px-4 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm shadow-sm transition-all"
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-pink-500 text-white px-5 h-10 rounded-full hover:bg-pink-600 transition-all text-sm font-medium shadow-sm active:scale-95"
+                                    onClick={handleFilter}
+                                    type="button"
+                                >
+                                    <Filter size={16} />
+                                    Filter
+                                </button>
+                                <button
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white text-pink-600 px-5 h-10 rounded-full hover:bg-pink-50 border border-pink-200 transition-all text-sm font-medium shadow-sm active:scale-95"
+                                    onClick={handleReset}
+                                    type="button"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    {loading && (
+                        <div className="flex text-center justify-center items-center min-h-[50vh]">
+                            <span className="loading loading-spinner loading-sm"></span>
+                            💌 Loading Responses...
+                        </div>
+                    )}  
                     {responses.length === 0 && !loading && (
                         <SurveysNotFound />
                     )}
 
-                    {/* Table */}
+                    {/* Desktop Table - hidden on mobile */}
                     {responses.length > 0 && !isRateLimited && (
-                        <div>
+                        <div className="hidden md:block">
                             <div className="overflow-x-auto bg-white rounded-3xl shadow-lg border border-pink-200">
                                 <table className="min-w-full table-auto">
                                     <thead className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-800">
                                         <tr>
-                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Submitted</th>
-                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Age</th>
-                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Gender</th>
-                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Occupation</th>
-                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Total Qs</th>
-                                            <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Actions</th>
+                                            <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Submitted</th>
+                                            <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Age</th>
+                                            <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Gender</th>
+                                            <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Occupation</th>
+                                            <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Total Qs</th>
+                                            <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-pink-100">
@@ -265,10 +343,10 @@ const AllResponsesPage = () => {
                                                 className={`hover:bg-pink-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-pink-25'
                                                     }`}
                                             >
-                                                <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                                <td className="px-4 lg:px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
                                                     {res.createdAt ? new Date(res.createdAt).toLocaleString() : 'N/A'}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                                <td className="px-4 lg:px-6 py-4 text-sm font-medium text-gray-900">
                                                     {(() => {
                                                         const ageVal = getFieldFromResponse(res, 'age');
                                                         if (ageVal === undefined || ageVal === null || ageVal === '') return 'N/A';
@@ -276,7 +354,7 @@ const AllResponsesPage = () => {
                                                         return Number.isFinite(num) ? `${num} years` : 'N/A';
                                                     })()}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-gray-700">
+                                                <td className="px-4 lg:px-6 py-4 text-sm text-gray-700">
                                                     {(() => {
                                                         const g = getFieldFromResponse(res, 'gender');
                                                         const formattedGender = formatGenderDisplay(g);
@@ -288,17 +366,17 @@ const AllResponsesPage = () => {
                                                         );
                                                     })()}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-gray-700">
+                                                <td className="px-4 lg:px-6 py-4 text-sm text-gray-700">
                                                     {(() => {
                                                         const occ = getFieldFromResponse(res, 'occupation');
                                                         return (occ === undefined || occ === null || occ === '') ? 'N/A' : occ;
                                                     })()}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-gray-700">
+                                                <td className="px-4 lg:px-6 py-4 text-sm text-gray-700">
                                                     {res.totalQuestions ?? (res.questionIds ? res.questionIds.length : 'N/A')}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm">
-                                                    <div className="flex items-center space-x-3">
+                                                <td className="px-4 lg:px-6 py-4 text-sm">
+                                                    <div className="flex items-center space-x-2">
                                                         <Link
                                                             to={`/details/${res._id}`}
                                                             className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-pink-700 bg-pink-100 hover:bg-pink-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-colors duration-200"
@@ -321,36 +399,57 @@ const AllResponsesPage = () => {
                         </div>
                     )}
 
+                    {/* Mobile Card View - visible only on mobile */}
+                    {responses.length > 0 && !isRateLimited && (
+                        <div className="md:hidden space-y-3">
+                            {responses.map((res, index) => (
+                                <MobileResponseCard key={res._id} res={res} index={index} />
+                            ))}
+                        </div>
+                    )}
+
                     {/* Pagination */}
                     {responses.length > 0 && !isRateLimited && pagination.totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 mt-6">
+                        <div className="flex justify-center items-center gap-1 sm:gap-2 mt-6 flex-wrap">
                             <button
                                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                                 disabled={!pagination.hasPrevPage}
-                                className="px-4 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 disabled:bg-pink-200 disabled:cursor-not-allowed"
+                                className="px-3 sm:px-4 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 disabled:bg-pink-200 disabled:cursor-not-allowed text-sm"
                             >
-                                Previous
+                                Prev
                             </button>
 
-                            <div className="flex items-center gap-2">
-                                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
-                                    <button
-                                        key={page}
-                                        onClick={() => handlePageChange(page)}
-                                        className={`px-3 py-2 rounded-full ${page === pagination.currentPage
-                                            ? "bg-pink-500 text-white"
-                                            : "bg-pink-100 text-pink-700 hover:bg-pink-200"
-                                            }`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                                    .filter(page => {
+                                        // On mobile, show fewer page buttons
+                                        const current = pagination.currentPage;
+                                        if (pagination.totalPages <= 5) return true;
+                                        return page === 1 || page === pagination.totalPages ||
+                                            Math.abs(page - current) <= 1;
+                                    })
+                                    .map((page, idx, arr) => (
+                                        <React.Fragment key={page}>
+                                            {idx > 0 && arr[idx - 1] !== page - 1 && (
+                                                <span className="px-1 text-pink-400">…</span>
+                                            )}
+                                            <button
+                                                onClick={() => handlePageChange(page)}
+                                                className={`px-3 py-2 rounded-full text-sm ${page === pagination.currentPage
+                                                    ? "bg-pink-500 text-white"
+                                                    : "bg-pink-100 text-pink-700 hover:bg-pink-200"
+                                                    }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        </React.Fragment>
+                                    ))}
                             </div>
 
                             <button
                                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                                 disabled={!pagination.hasNextPage}
-                                className="px-4 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 disabled:bg-pink-200 disabled:cursor-not-allowed"
+                                className="px-3 sm:px-4 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 disabled:bg-pink-200 disabled:cursor-not-allowed text-sm"
                             >
                                 Next
                             </button>
@@ -359,14 +458,14 @@ const AllResponsesPage = () => {
 
                     {/* Pagination Info */}
                     {responses.length > 0 && !isRateLimited && (
-                        <div className="text-center mt-4 text-sm text-pink-600">
+                        <div className="text-center mt-4 text-xs sm:text-sm text-pink-600">
                             Showing {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} to{" "}
                             {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of{" "}
                             {pagination.totalItems} responses
                         </div>
                     )}
 
-                </div>
+                </main>
             </div>
         </div>
     );

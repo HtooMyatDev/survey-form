@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronDown } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import api from "../lib/axios";
@@ -12,6 +12,7 @@ const QuestionsPage = () => {
     const [editingQuestion, setEditingQuestion] = useState(null);
     const [orderError, setOrderError] = useState("");
     const [optionError, setOptionError] = useState("");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [formData, setFormData] = useState({
         questionText: "",
         questionType: "text",
@@ -170,13 +171,49 @@ const QuestionsPage = () => {
         });
     };
 
+    // Mobile card for each question
+    const MobileQuestionCard = ({ question }) => (
+        <div className="bg-white rounded-2xl border border-pink-200 p-4 shadow-sm">
+            <div className="flex items-start justify-between mb-2">
+                <span className="text-xs font-bold bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full">
+                    #{question.order}
+                </span>
+                <div className="flex items-center gap-1">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
+                        question.questionType === 'text' ? 'bg-blue-100 text-blue-800' :
+                        question.questionType === 'radio' ? 'bg-green-100 text-green-800' :
+                        'bg-purple-100 text-purple-800'
+                    }`}>
+                        {question.questionType}
+                    </span>
+                    <span className="text-xs text-gray-500 capitalize">{question.category}</span>
+                </div>
+            </div>
+            <p className="text-sm text-gray-700 mb-3 line-clamp-2">{question.questionText}</p>
+            <div className="flex items-center gap-2">
+                <button
+                    onClick={() => handleEdit(question)}
+                    className="flex-1 text-center px-3 py-1.5 text-xs font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors"
+                >
+                    <Edit size={14} className="inline mr-1" /> Edit
+                </button>
+                <button
+                    onClick={() => handleDelete(question._id)}
+                    className="flex-1 text-center px-3 py-1.5 text-xs font-medium rounded-lg text-red-700 bg-red-100 hover:bg-red-200 transition-colors"
+                >
+                    <Trash2 size={14} className="inline mr-1" /> Delete
+                </button>
+            </div>
+        </div>
+    );
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
-                <Topbar />
-                <div className="flex">
-                    <Sidebar />
-                    <div className="max-w-7xl mx-auto flex-1 min-w-0 overflow-hidden p-6 flex items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
+                <Topbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+                <div className="flex flex-1">
+                    <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+                    <div className="flex-1 min-w-0 p-6 flex items-center justify-center">
                         <div className="p-6">
                             <span className="loading loading-spinner loading-lg"></span>
                         </div>
@@ -187,16 +224,16 @@ const QuestionsPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
-            <Topbar />
-            <div className="flex">
-                <Sidebar />
-                <div className="max-w-7xl mx-auto flex-1 p-6 min-w-0">
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-3xl font-bold">🎀 Manage Questions</h1>
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
+            <Topbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+            <div className="flex flex-1">
+                <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+                <div className="flex-1 p-3 sm:p-6 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+                        <h1 className="text-2xl sm:text-3xl font-bold">🎀 Manage Questions</h1>
                         <button
                             onClick={() => setShowForm(true)}
-                            className="flex items-center gap-2 bg-pink-500 text-white px-4 py-2 rounded-full hover:bg-pink-600"
+                            className="flex items-center justify-center gap-2 bg-pink-500 text-white px-4 py-2 rounded-full hover:bg-pink-600 text-sm sm:text-base w-full sm:w-auto"
                         >
                             <Plus size={20} />
                             Add Question
@@ -205,8 +242,8 @@ const QuestionsPage = () => {
 
                     {/* Question Form */}
                     {showForm && (
-                        <div className="bg-white rounded-3xl p-6 mb-6 shadow-lg border border-pink-200">
-                            <h2 className="text-xl font-bold mb-4">
+                        <div className="bg-white rounded-3xl p-4 sm:p-6 mb-6 shadow-lg border border-pink-200">
+                            <h2 className="text-lg sm:text-xl font-bold mb-4">
                                 {editingQuestion ? "Edit Question" : "Add New Question"}
                             </h2>
                             <form onSubmit={handleSubmit} className="space-y-4">
@@ -215,38 +252,44 @@ const QuestionsPage = () => {
                                     <textarea
                                         value={formData.questionText}
                                         onChange={(e) => setFormData(prev => ({ ...prev, questionText: e.target.value }))}
-                                        className="w-full p-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
+                                        className="w-full p-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm"
                                         rows="3"
                                         required
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium mb-2">Question Type</label>
-                                        <select
-                                            value={formData.questionType}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, questionType: e.target.value }))}
-                                            className="w-full p-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
-                                        >
-                                            <option value="text">Text Input</option>
-                                            <option value="radio">Radio Buttons</option>
-                                            <option value="checkbox">Checkboxes</option>
-                                        </select>
+                                        <div className="relative group">
+                                            <select
+                                                value={formData.questionType}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, questionType: e.target.value }))}
+                                                className="w-full h-12 pl-4 pr-10 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm appearance-none bg-white transition-all shadow-sm"
+                                            >
+                                                <option value="text">Text Input</option>
+                                                <option value="radio">Radio Buttons</option>
+                                                <option value="checkbox">Checkboxes</option>
+                                            </select>
+                                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400 pointer-events-none group-hover:text-pink-500 transition-colors" />
+                                        </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium mb-2">Category</label>
-                                        <select
-                                            value={formData.category}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                                            className="w-full p-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
-                                        >
-                                            <option value="demographics">Demographics</option>
-                                            <option value="stress">Stress</option>
-                                            <option value="coping">Coping</option>
-                                            <option value="general">General</option>
-                                        </select>
+                                        <div className="relative group">
+                                            <select
+                                                value={formData.category}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                                                className="w-full h-12 pl-4 pr-10 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm appearance-none bg-white transition-all shadow-sm"
+                                            >
+                                                <option value="demographics">Demographics</option>
+                                                <option value="stress">Stress</option>
+                                                <option value="coping">Coping</option>
+                                                <option value="general">General</option>
+                                            </select>
+                                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400 pointer-events-none group-hover:text-pink-500 transition-colors" />
+                                        </div>
                                     </div>
 
                                     <div>
@@ -263,7 +306,7 @@ const QuestionsPage = () => {
                                                     setOrderError("");
                                                 }
                                             }}
-                                            className="w-full p-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
+                                            className="w-full h-12 px-4 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm shadow-sm transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             min="0"
                                         />
                                         {orderError && (
@@ -277,7 +320,7 @@ const QuestionsPage = () => {
                                             value={formData.fieldKey}
                                             onChange={(e) => setFormData(prev => ({ ...prev, fieldKey: e.target.value.trim() }))}
                                             placeholder="e.g., age"
-                                            className="w-full p-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
+                                            className="w-full h-12 px-4 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm shadow-sm transition-all"
                                         />
                                         <p className="text-xs text-pink-400 mt-1">Use a stable key like "age" to enable special validations.</p>
                                     </div>
@@ -308,12 +351,12 @@ const QuestionsPage = () => {
                                                         placeholder="Option text"
                                                         value={option.text}
                                                         onChange={(e) => updateOption(index, 'text', e.target.value)}
-                                                        className="flex-1 p-2 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none"
+                                                        className="flex-1 p-2 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:outline-none text-sm"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => removeOption(index)}
-                                                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shrink-0"
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
@@ -322,7 +365,7 @@ const QuestionsPage = () => {
                                             <button
                                                 type="button"
                                                 onClick={addOption}
-                                                className="px-4 py-2 bg-pink-100 text-pink-700 rounded-lg hover:bg-pink-200"
+                                                className="px-4 py-2 bg-pink-100 text-pink-700 rounded-lg hover:bg-pink-200 text-sm"
                                             >
                                                 Add Option
                                             </button>
@@ -330,10 +373,10 @@ const QuestionsPage = () => {
                                     </div>
                                 )}
 
-                                <div className="flex gap-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                     <button
                                         type="submit"
-                                        className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600"
+                                        className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 text-sm w-full sm:w-auto"
                                         disabled={!!optionError}
                                     >
                                         {editingQuestion ? "Update Question" : "Create Question"}
@@ -345,7 +388,7 @@ const QuestionsPage = () => {
                                             setEditingQuestion(null);
                                             resetForm();
                                         }}
-                                        className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                                        className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm w-full sm:w-auto"
                                     >
                                         Cancel
                                     </button>
@@ -354,30 +397,30 @@ const QuestionsPage = () => {
                         </div>
                     )}
 
-                    {/* Questions List */}
-                    <div className="overflow-x-auto bg-white rounded-3xl shadow-lg border border-pink-200">
+                    {/* Desktop Table - hidden on mobile */}
+                    <div className="hidden md:block overflow-x-auto bg-white rounded-3xl shadow-lg border border-pink-200">
                         <table className="min-w-full table-auto">
                             <thead className="bg-gradient-to-r from-pink-100 to-pink-200">
                                 <tr>
-                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Order</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Question</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Type</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Category</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Actions</th>
+                                    <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Order</th>
+                                    <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Question</th>
+                                    <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Type</th>
+                                    <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Category</th>
+                                    <th className="px-4 lg:px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-pink-100">
                                 {questions.map((question) => (
                                     <tr key={question._id} className="hover:bg-pink-50">
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                        <td className="px-4 lg:px-6 py-4 text-sm font-medium text-gray-900">
                                             {question.order}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">
-                                            <div className="max-w-md truncate" title={question.questionText}>
+                                        <td className="px-4 lg:px-6 py-4 text-sm text-gray-700">
+                                            <div className="max-w-xs lg:max-w-md truncate" title={question.questionText}>
                                                 {question.questionText}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm">
+                                        <td className="px-4 lg:px-6 py-4 text-sm">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${question.questionType === 'text' ? 'bg-blue-100 text-blue-800' :
                                                 question.questionType === 'radio' ? 'bg-green-100 text-green-800' :
                                                     'bg-purple-100 text-purple-800'
@@ -385,11 +428,11 @@ const QuestionsPage = () => {
                                                 {question.questionType}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-700 capitalize">
+                                        <td className="px-4 lg:px-6 py-4 text-sm text-gray-700 capitalize">
                                             {question.category}
                                         </td>
 
-                                        <td className="px-6 py-4 text-sm">
+                                        <td className="px-4 lg:px-6 py-4 text-sm">
                                             <div className="flex items-center space-x-2">
                                                 <button
                                                     onClick={() => handleEdit(question)}
@@ -411,6 +454,13 @@ const QuestionsPage = () => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-3">
+                        {questions.map((question) => (
+                            <MobileQuestionCard key={question._id} question={question} />
+                        ))}
                     </div>
                 </div>
             </div>

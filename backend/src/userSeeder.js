@@ -1,6 +1,5 @@
 // userSeeder.js
 import User from "./models/User.js";
-import bcrypt from "bcrypt";
 
 const userSeeder = async () => {
     try {
@@ -19,14 +18,12 @@ const userSeeder = async () => {
         if (!adminEmail || !adminPassword) {
             console.log("Admin credentials not found in environment variables. Skipping admin creation.");
         } else {
-            // Hash password before storing
-            const hashedAdminPassword = await bcrypt.hash(adminPassword, 12);
 
             await User.create({
                 name: adminName,
                 email: adminEmail,
-                password: hashedAdminPassword,
-                role: "admin" // assuming you have roles
+                password: adminPassword,
+                role: "admin"
             });
             console.log(`Admin user created: ${adminEmail}`);
         }
@@ -37,12 +34,11 @@ const userSeeder = async () => {
             const testPassword = process.env.TEST_USER_PASSWORD || "testpassword123";
             const testName = process.env.TEST_USER_NAME || "Test User";
 
-            const hashedTestPassword = await bcrypt.hash(testPassword, 12);
-
+            // Don't hash here - let the User model's pre-save hook handle it
             await User.create({
                 name: testName,
                 email: testEmail,
-                password: hashedTestPassword,
+                password: testPassword,
                 role: "participant"
             });
             console.log(`Test user created: ${testEmail}`);

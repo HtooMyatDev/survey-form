@@ -11,7 +11,7 @@ const NotFoundPage = () => (
 
         {/* Hello Kitty face */}
         <div className="mb-8 relative">
-            <div className="w-32 h-32 bg-gradient-to-br from-pink-200 to-pink-300 rounded-full border-4 border-pink-400 mx-auto flex items-center justify-center shadow-lg relative overflow-hidden">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-200 to-pink-300 rounded-full border-4 border-pink-400 mx-auto flex items-center justify-center shadow-lg relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-100 to-pink-200 rounded-full animate-pulse"></div>
                 <div className="relative z-10">
                     <div className="w-20 h-16 bg-white rounded-full relative">
@@ -36,9 +36,9 @@ const NotFoundPage = () => (
             </div>
         </div>
 
-        <h1 className="text-6xl font-bold mb-2">404</h1>
-        <p className="text-2xl mb-4">Oops! This page is lost in cuteness...</p>
-        <p className="text-lg text-pink-500 mb-8">Let's get you back to somewhere adorable!</p>
+        <h1 className="text-5xl sm:text-6xl font-bold mb-2">404</h1>
+        <p className="text-xl sm:text-2xl mb-4 px-4">Oops! This page is lost in cuteness...</p>
+        <p className="text-base sm:text-lg text-pink-500 mb-8 px-4">Let's get you back to somewhere adorable!</p>
         <a href="/" className="flex items-center gap-2 px-6 py-2 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition font-bold text-lg shadow-lg">
             <Home size={20} />
             Go Home

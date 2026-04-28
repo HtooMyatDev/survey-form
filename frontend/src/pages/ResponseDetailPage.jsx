@@ -77,9 +77,9 @@ const ResponseDetailPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
             <Topbar />
-            <div className="flex">
+            <div className="flex flex-1">
                 <Sidebar />
                 <main className="flex-1 p-2 sm:p-6">
                     <button
