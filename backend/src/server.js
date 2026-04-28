@@ -22,13 +22,7 @@ const PORT = process.env.PORT || 5002;
 const __dirname = path.resolve();
 
 // Middlware to parse JSON bodies
-if (process.env.NODE_ENV !== "production") {
-    app.use(
-        cors({
-            origin: "http://localhost:5173",
-        })
-    );
-}
+app.use(cors());
 
 app.use(express.json());
 app.use(rateLimiter);
