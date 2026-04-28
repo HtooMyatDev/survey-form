@@ -13,6 +13,14 @@ import userSeeder from "./userSeeder.js";
 import { connectDB } from "./config/db.js"
 import { rateLimiter } from "./middleware/rateLimiter.js"
 
+// Diagnostic logger for production
+const logger = (req, res, next) => {
+    if (process.env.NODE_ENV === "production") {
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    }
+    next();
+};
+
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -30,7 +38,13 @@ app.use(cors({
 app.options("*", cors());
 
 app.use(express.json());
+app.use(logger); // Log requests in production
 app.use(rateLimiter);
+
+// Diagnostic route
+app.all("/api/ping", (req, res) => {
+    res.json({ status: "pong", method: req.method, timestamp: new Date().toISOString() });
+});
 
 // Routes
 app.use("/api/responses", responseRoutes)
