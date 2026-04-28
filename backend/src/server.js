@@ -49,13 +49,19 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Connect to DB and start the server
-connectDB().then(async () => {
-    console.log("MongoDB connected");
-    if (process.env.RUN_SEED === "true") {
-        await userSeeder();
-    }
+if (process.env.NODE_ENV !== "production") {
+    connectDB().then(async () => {
+        console.log("MongoDB connected");
+        if (process.env.RUN_SEED === "true") {
+            await userSeeder();
+        }
 
-    app.listen(5002, () => {
-        console.log("Server started on Port:", PORT);
+        app.listen(PORT, () => {
+            console.log("Server started on Port:", PORT);
+        });
     });
-});
+} else {
+    connectDB();
+}
+
+export default app;
