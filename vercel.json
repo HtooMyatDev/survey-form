@@ -16,8 +16,9 @@
       "src": "/api/(.*)",
       "dest": "/api/index.js"
     },
+    { "handle": "filesystem" },
     {
-      "src": "/((?!api|assets|favicon.ico|vite.svg).*)",
+      "src": "/(.*)",
       "dest": "/frontend/dist/index.html"
     }
   ]
