@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 // Sub-components
 import SuccessDecorations from '../components/success/SuccessDecorations';
 import SuccessStats from '../components/success/SuccessStats';
+import SuccessAvatar from '../components/success/SuccessAvatar';
 
 const Success = () => {
     const location = useLocation();
