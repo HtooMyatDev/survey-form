@@ -1,14 +1,14 @@
 import React from 'react'
 import { Route, Routes } from 'react-router'
-import LoginPage from './pages/LoginPage'
-import SurveyPage from './pages/SurveyPage'
-import SuccessPage from './pages/SuccessPage'
-import DashboardPage from './pages/DashboardPage'
+import Login from './pages/Login'
+import Survey from './pages/Survey'
+import Success from './pages/Success'
+import Dashboard from './pages/Dashboard'
 import { ProtectedRoute, AuthenticatedRoute } from './components/PrivateRoute'
-import AllResponsesPage from './pages/AllResponsesPage'
-import ResponseDetailPage from './pages/ResponseDetailPage'
-import QuestionsPage from './pages/QuestionsPage'
-import NotFoundPage from './pages/NotFoundPage';
+import Responses from './pages/Responses'
+import ResponseDetail from './pages/ResponseDetail'
+import Questions from './pages/Questions'
+import NotFound from './pages/NotFound';
 
 const App = () => {
     return (
@@ -16,37 +16,37 @@ const App = () => {
             <Routes>
                 <Route path='/' element={
                     <AuthenticatedRoute>
-                        <LoginPage />
+                        <Login />
                     </AuthenticatedRoute>
                 } />
                 <Route
                     path="/dashboard"
                     element={
                         <ProtectedRoute>
-                            <DashboardPage />
+                            <Dashboard />
                         </ProtectedRoute>
 
                     }
                 />
-                <Route path='/survey' element={<SurveyPage />} />
-                <Route path='/success' element={<SuccessPage />} />
+                <Route path='/survey' element={<Survey />} />
+                <Route path='/success' element={<Success />} />
                 <Route path='/list' element={
                     <ProtectedRoute>
-                        <AllResponsesPage />
+                        <Responses />
                     </ProtectedRoute>
                 } />
                 <Route path='/details/:id' element={
                     <ProtectedRoute>
-                        <ResponseDetailPage />
+                        <ResponseDetail />
                     </ProtectedRoute>
                 } />
                 <Route path='/questions' element={
                     <ProtectedRoute>
-                        <QuestionsPage />
+                        <Questions />
                     </ProtectedRoute>
                 } />
                 {/* 404 Not Found Route */}
-                <Route path="*" element={<NotFoundPage />} />
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </div>
     )
