@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/src/server.js",
+      "src": "api/index.js",
       "use": "@vercel/node"
     },
     {
@@ -14,10 +14,10 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "backend/src/server.js"
+      "destination": "/api/index.js"
     },
     {
-      "source": "/((?!api|static|favicon.ico|manifest.json).*)",
+      "source": "/((?!api|assets|favicon.ico|vite.svg).*)",
       "destination": "/index.html"
     }
   ]
