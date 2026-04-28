@@ -20,7 +20,8 @@ const HelloKittySurvey = () => {
     const fetchQuestions = async () => {
         try {
             const response = await api.get('/questions');
-            const sortedQuestions = response.data.sort((a, b) => a.order - b.order);
+            const data = Array.isArray(response.data) ? response.data : [];
+            const sortedQuestions = data.sort((a, b) => a.order - b.order);
             setQuestions(sortedQuestions);
 
             // Initialize form data with empty values for each question

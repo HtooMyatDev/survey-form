@@ -38,6 +38,10 @@ app.use("/api/responses", responseRoutes)
 app.use("/api/auth", authRoutes)
 app.use("/api/questions", questionRoutes)
 
+app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", message: "Sparkly backend is alive! 🎀", timestamp: new Date() });
+});
+
 
 // Serve frontend
 if (process.env.NODE_ENV === "production") {
