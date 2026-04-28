@@ -18,8 +18,16 @@ const app = express();
 const PORT = process.env.PORT || 5002;
 const __dirname = path.resolve();
 
-// Middlware to parse JSON bodies
-app.use(cors());
+// Middleware to parse JSON bodies
+app.use(cors({
+    origin: true,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// Handle OPTIONS preflight requests explicitly
+app.options("*", cors());
 
 app.use(express.json());
 app.use(rateLimiter);
@@ -36,8 +44,8 @@ app.get("/api/health", (req, res) => {
 });
 
 
-// Serve frontend
-if (process.env.NODE_ENV === "production") {
+// Serve frontend (Only if not on Vercel)
+if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
     app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
     app.get("*", (req, res) => {
