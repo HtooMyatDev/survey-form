@@ -88,8 +88,11 @@ export async function submitResponse(req, res) {
         };
 
         // Step 7: Save the response to the database
-        await Response.create(responseData);
-        res.status(201).json({ message: "Response submitted successfully!" });
+        const savedResponse = await Response.create(responseData);
+        res.status(201).json({ 
+            message: "Response submitted successfully!",
+            id: savedResponse._id 
+        });
     } catch (error) {
         // Step 8: Handle unexpected errors
         res.status(400).json({

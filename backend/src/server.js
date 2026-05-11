@@ -2,6 +2,7 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import helmet from "helmet";
 import "./config/env.js"; // Initialize environment variables first
 
 import responseRoutes from "./routers/responseRoutes.js"
@@ -12,6 +13,7 @@ import userSeeder from "./userSeeder.js";
 
 import { connectDB } from "./config/db.js"
 import { rateLimiter } from "./middleware/rateLimiter.js"
+import { initCronJobs } from "./utils/cron.js";
 
 // Diagnostic logger for production
 const logger = (req, res, next) => {
@@ -38,8 +40,9 @@ app.use(cors({
 app.options("*", cors());
 
 app.use(express.json());
+app.use(helmet()); // Basic XSS and security header protection
 app.use(logger); // Log requests in production
-// app.use(rateLimiter); // Temporarily disable to debug 405 issue
+app.use(rateLimiter); // DDoS protection
 
 // Routes
 const apiRouter = express.Router();
@@ -82,6 +85,9 @@ if (process.env.NODE_ENV !== "production") {
 
         app.listen(PORT, () => {
             console.log("Server started on Port:", PORT);
+            if (!process.env.VERCEL) {
+                initCronJobs(); // Only start in-memory cron if not on Vercel
+            }
         });
     });
 } else {

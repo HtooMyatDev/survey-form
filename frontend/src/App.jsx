@@ -8,6 +8,7 @@ import { ProtectedRoute, AuthenticatedRoute } from './components/PrivateRoute'
 import Responses from './pages/Responses'
 import ResponseDetail from './pages/ResponseDetail'
 import Questions from './pages/Questions'
+import ViewSubmission from './pages/ViewSubmission'
 import NotFound from './pages/NotFound';
 
 const App = () => {
@@ -45,6 +46,7 @@ const App = () => {
                         <Questions />
                     </ProtectedRoute>
                 } />
+                <Route path='/view-submission/:id' element={<ViewSubmission />} />
                 {/* 404 Not Found Route */}
                 <Route path="*" element={<NotFound />} />
             </Routes>

@@ -97,6 +97,8 @@ const Survey = () => {
     const handlePreviousPage = () => {
         if (currentPage > 0) {
             setCurrentPage(currentPage - 1);
+        } else {
+            navigate("/");
         }
     };
 
@@ -127,7 +129,8 @@ const Survey = () => {
         setIsSubmitting(true);
         try {
             const processedFormData = processFormDataForSubmit(formData, otherInputs);
-            await api.post("/responses", processedFormData);
+            const response = await api.post("/responses", processedFormData);
+            const submissionId = response.data.id;
 
             toast.success('Thank you for sharing, cutie!', {
                 duration: 5000,
@@ -141,7 +144,7 @@ const Survey = () => {
             }).length;
 
             navigate("/success", {
-                state: { questionsAnswered, totalQuestions: questions.length }
+                state: { questionsAnswered, totalQuestions: questions.length, submissionId }
             });
         } catch (error) {
             if (error.response?.status === 429) {

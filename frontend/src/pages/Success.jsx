@@ -11,6 +11,7 @@ const Success = () => {
     const location = useLocation();
     const questionsAnswered = location.state?.questionsAnswered ?? 1;
     const totalQuestions = location.state?.totalQuestions ?? 1;
+    const submissionId = location.state?.submissionId;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white relative overflow-hidden">
@@ -46,6 +47,13 @@ const Success = () => {
                                 totalQuestions={totalQuestions}
                             />
 
+                            {/* Submission ID section */}
+                            {submissionId && (
+                                <div className="text-xs text-pink-300 bg-pink-50/50 py-2 rounded-lg border border-pink-100/50">
+                                    Submission ID: {submissionId}
+                                </div>
+                            )}
+
                             {/* Special message */}
                             <div className="bg-gradient-to-r from-pink-100 to-pink-50 rounded-2xl p-6 border border-pink-200">
                                 <div className="flex items-center justify-center mb-3">
@@ -63,6 +71,14 @@ const Success = () => {
 
                             {/* Action buttons */}
                             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                                {submissionId && (
+                                    <Link to={`/view-submission/${submissionId}`}
+                                        className="btn bg-white border-2 border-pink-300 text-pink-500 hover:bg-pink-50 font-bold rounded-2xl flex items-center gap-2"
+                                    >
+                                        <Star size={16} />
+                                        View My Responses
+                                    </Link>
+                                )}
                                 <Link to={"/"}
                                     className="btn bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 hover:to-pink-600 border-none text-white font-bold rounded-2xl flex items-center gap-2"
                                 >

@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import api from "../lib/axios";
 import { Heart } from "lucide-react";
 import { calculateDashboardStats } from "../utils/dashboardUtils";
+import AnalyticsCharts from "../components/AnalyticsCharts";
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -72,12 +73,14 @@ const Dashboard = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                                <StatCard title="Total Responses" value={stats.countResponses} />
-                                <StatCard title="Male Participants" value={stats.maleCount} colorClass="text-blue-600" />
-                                <StatCard title="Highest Stress" value={stats.q8TopAnswer} />
-                                <StatCard title="Coping" value={stats.topCoping} />
+                                <StatCard title="Total Responses" value={stats.totalResponses} />
+                                <StatCard title="Male" value={stats.demographics.male} colorClass="text-blue-600" />
+                                <StatCard title="Female" value={stats.demographics.female} colorClass="text-pink-600" />
+                                <StatCard title="Others" value={stats.demographics.other} colorClass="text-purple-600" />
                             </div>
                         )}
+
+                        {!loading && <AnalyticsCharts stats={stats} />}
                     </section>
                 </main>
             </div>
