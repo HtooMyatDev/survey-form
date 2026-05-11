@@ -2,26 +2,27 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Eye, Trash2 } from "lucide-react";
 import DeleteResponseModal from "./DeleteResponseModal";
-import { 
-    getFieldFromResponse, 
-    formatGenderDisplay, 
-    getGenderDisplayClass, 
-    formatAge 
+import {
+    getFieldFromResponse,
+    formatGenderDisplay,
+    getGenderDisplayClass,
+    formatAge
 } from "../../utils/responseUtils";
 
 const ResponseCard = ({ res, questions, onDelete }) => {
+    const responseId = res._id || res.id;
     const ageVal = getFieldFromResponse(res, 'age', questions);
     const age = formatAge(ageVal);
-    
+
     const g = getFieldFromResponse(res, 'gender', questions);
     const formattedGender = formatGenderDisplay(g);
     const cls = getGenderDisplayClass(g);
-    
+
     const occ = getFieldFromResponse(res, 'occupation', questions);
     const occupation = (occ === undefined || occ === null || occ === '') ? 'N/A' : occ;
 
     const openDeleteModal = () => {
-        document.getElementById(`delete_modal_${res._id}`).showModal();
+        document.getElementById(`delete_modal_${responseId}`).showModal();
     };
 
     return (
@@ -50,7 +51,7 @@ const ResponseCard = ({ res, questions, onDelete }) => {
             </div>
             <div className="flex items-center gap-2">
                 <Link
-                    to={`/details/${res._id}`}
+                    to={`/details/${responseId}`}
                     className="flex-1 text-center px-3 py-1.5 text-xs font-medium rounded-lg text-pink-700 bg-pink-100 hover:bg-pink-200 transition-colors"
                 >
                     <Eye size={14} className="inline mr-1" /> View
@@ -62,7 +63,7 @@ const ResponseCard = ({ res, questions, onDelete }) => {
                     <Trash2 size={14} className="inline mr-1" /> Delete
                 </button>
             </div>
-            <DeleteResponseModal id={res._id} onDelete={onDelete} />
+            <DeleteResponseModal id={responseId} onDelete={onDelete} />
         </div>
     );
 };

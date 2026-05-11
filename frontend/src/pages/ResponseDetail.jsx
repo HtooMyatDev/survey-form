@@ -3,10 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom'
 import Sidebar from "../components/Sidebar"
 import Topbar from "../components/Topbar"
 import api from "../lib/axios"
-import { 
-    getResponseAnswer, 
-    getQuestionText, 
-    formatDetailedAnswer 
+import {
+    getResponseAnswer,
+    getQuestionText,
+    formatDetailedAnswer
 } from '../utils/responseUtils'
 
 const ResponseDetail = () => {
@@ -62,7 +62,7 @@ const ResponseDetail = () => {
                     >
                         ← Back
                     </button>
-                    
+
                     <section className="bg-white rounded-3xl border border-pink-200 p-4 sm:p-6 shadow-md w-full">
                         {error && (
                             <div className="text-red-500 text-center py-10">{error}</div>
@@ -82,7 +82,7 @@ const ResponseDetail = () => {
                                             <span className="font-semibold text-pink-600">Submitted:</span> {new Date(response.createdAt).toLocaleString()}
                                         </div>
                                         <div>
-                                            <span className="font-semibold text-pink-600">Response ID:</span> <span className="text-gray-400 font-mono text-xs">{response._id}</span>
+                                            <span className="font-semibold text-pink-600">Response ID:</span> <span className="text-gray-400 font-mono text-xs">{response._id || response.id}</span>
                                         </div>
                                     </div>
                                 </div>

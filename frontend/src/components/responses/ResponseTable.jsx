@@ -2,11 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Eye, Trash2 } from "lucide-react";
 import DeleteResponseModal from "./DeleteResponseModal";
-import { 
-    getFieldFromResponse, 
-    formatGenderDisplay, 
-    getGenderDisplayClass, 
-    formatAge 
+import {
+    getFieldFromResponse,
+    formatGenderDisplay,
+    getGenderDisplayClass,
+    formatAge
 } from "../../utils/responseUtils";
 
 const ResponseTable = ({ responses, questions, onDelete }) => {
@@ -26,13 +26,14 @@ const ResponseTable = ({ responses, questions, onDelete }) => {
                     </thead>
                     <tbody className="divide-y divide-pink-100">
                         {responses.map((res, index) => {
+                            const responseId = res._id || res.id;
                             const ageVal = getFieldFromResponse(res, 'age', questions);
                             const g = getFieldFromResponse(res, 'gender', questions);
                             const occ = getFieldFromResponse(res, 'occupation', questions);
-                            
+
                             return (
                                 <tr
-                                    key={res._id}
+                                    key={responseId}
                                     className={`hover:bg-pink-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-pink-25'}`}
                                 >
                                     <td className="px-4 lg:px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
@@ -55,18 +56,18 @@ const ResponseTable = ({ responses, questions, onDelete }) => {
                                     <td className="px-4 lg:px-6 py-4 text-sm">
                                         <div className="flex items-center space-x-2">
                                             <Link
-                                                to={`/details/${res._id}`}
+                                                to={`/details/${responseId}`}
                                                 className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-pink-700 bg-pink-100 hover:bg-pink-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-colors duration-200"
                                             >
                                                 <Eye size={14} className="mr-1" /> View
                                             </Link>
                                             <button
-                                                onClick={() => document.getElementById(`delete_modal_${res._id}`).showModal()}
+                                                onClick={() => document.getElementById(`delete_modal_${responseId}`).showModal()}
                                                 className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-colors duration-200"
                                             >
                                                 <Trash2 size={14} className="mr-1" /> Delete
                                             </button>
-                                            <DeleteResponseModal id={res._id} onDelete={onDelete} />
+                                            <DeleteResponseModal id={responseId} onDelete={onDelete} />
                                         </div>
                                     </td>
                                 </tr>

@@ -4,8 +4,10 @@
 export const toResponseDTO = (response) => {
     return {
         id: response._id,
+        _id: response._id,
         answers: response.answers,
         totalQuestions: response.totalQuestions,
+        questionIds: response.questionIds,
         completedAt: response.completedAt,
         createdAt: response.createdAt
     };

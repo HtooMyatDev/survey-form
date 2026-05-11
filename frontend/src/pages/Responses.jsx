@@ -19,12 +19,12 @@ const Responses = () => {
     const [loading, setLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
-    
+
     // Filter State
     const [ageFilter, setAgeFilter] = useState("");
     const [occupationFilter, setOccupationFilter] = useState("");
     const [genderFilter, setGenderFilter] = useState("");
-    
+
     // Pagination State
     const [pagination, setPagination] = useState({
         currentPage: 1,
@@ -44,7 +44,7 @@ const Responses = () => {
                 page: page.toString(),
                 limit: "10"
             }).toString();
-            
+
             const res = await api.get(`/responses?${params}`);
             setResponses(res.data.responses);
             setPagination(res.data.pagination);
@@ -113,14 +113,14 @@ const Responses = () => {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-100 via-pink-50 to-white text-pink-700">
             <Topbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
-            
+
             <div className="flex flex-1">
                 <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-                
+
                 <main className="flex-1 p-3 sm:p-6 min-w-0">
                     <h1 className="text-2xl sm:text-3xl font-bold mb-4">🎀 All Survey Responses</h1>
 
-                    <ResponseFilters 
+                    <ResponseFilters
                         genderFilter={genderFilter}
                         setGenderFilter={setGenderFilter}
                         ageFilter={ageFilter}
@@ -143,27 +143,27 @@ const Responses = () => {
                     ) : (
                         <>
                             {/* Desktop View */}
-                            <ResponseTable 
-                                responses={responses} 
-                                questions={questions} 
-                                onDelete={handleDelete} 
+                            <ResponseTable
+                                responses={responses}
+                                questions={questions}
+                                onDelete={handleDelete}
                             />
 
                             {/* Mobile View */}
                             <div className="md:hidden space-y-3">
                                 {responses.map(res => (
-                                    <ResponseCard 
-                                        key={res._id} 
-                                        res={res} 
-                                        questions={questions} 
-                                        onDelete={handleDelete} 
+                                    <ResponseCard
+                                        key={res._id || res.id}
+                                        res={res}
+                                        questions={questions}
+                                        onDelete={handleDelete}
                                     />
                                 ))}
                             </div>
 
-                            <Pagination 
-                                pagination={pagination} 
-                                onPageChange={handlePageChange} 
+                            <Pagination
+                                pagination={pagination}
+                                onPageChange={handlePageChange}
                             />
                         </>
                     )}
@@ -174,4 +174,3 @@ const Responses = () => {
 };
 
 export default Responses;
-
