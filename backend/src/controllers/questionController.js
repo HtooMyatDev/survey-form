@@ -1,162 +1,90 @@
 import Question from "../models/Question.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/appError.js";
+import { toQuestionDTO, toQuestionListDTO } from "../dtos/questionDTO.js";
 
 // Get all active questions ordered by their order field
-export async function getAllQuestions(_, res) {
-    try {
-        const questions = await Question.find({ isActive: true })
-            .sort({ order: 1, createdAt: 1 });
-
-        res.status(200).json(questions);
-    } catch (error) {
-        res.status(500).json({
-            message: "Failed to fetch questions",
-            error: error.message
-        });
-    }
-}
+export const getAllQuestions = catchAsync(async (req, res, next) => {
+    const questions = await Question.find({ isActive: true })
+        .sort({ order: 1, createdAt: 1 });
+    res.status(200).json(toQuestionListDTO(questions));
+});
 
 // Get all questions (including inactive) for admin management
-export async function getAllQuestionsAdmin(_, res) {
-    try {
-        const questions = await Question.find()
-            .sort({ order: 1, createdAt: 1 });
-
-        res.status(200).json(questions);
-    } catch (error) {
-        res.status(500).json({
-            message: "Failed to fetch questions",
-            error: error.message
-        });
-    }
-}
+export const getAllQuestionsAdmin = catchAsync(async (req, res, next) => {
+    const questions = await Question.find()
+        .sort({ order: 1, createdAt: 1 });
+    res.status(200).json(toQuestionListDTO(questions));
+});
 
 // Get a single question by ID
-export async function getQuestionById(req, res) {
-    try {
-        const { id } = req.params;
-        const question = await Question.findById(id);
-
-        if (!question) {
-            return res.status(404).json({ message: "Question not found" });
-        }
-
-        res.status(200).json(question);
-    } catch (error) {
-        res.status(500).json({
-            message: "Failed to fetch question",
-            error: error.message
-        });
+export const getQuestionById = catchAsync(async (req, res, next) => {
+    const question = await Question.findById(req.params.id);
+    if (!question) {
+        return next(new AppError("Question not found", 404));
     }
-}
+    res.status(200).json(toQuestionDTO(question));
+});
 
 // Create a new question
-export async function createQuestion(req, res) {
-    try {
-        // Prevent duplicate order values
-        if (typeof req.body.order === 'number') {
-            const existing = await Question.findOne({ order: req.body.order });
-            if (existing) {
-                return res.status(400).json({ message: `Order ${req.body.order} is already in use.` });
-            }
+export const createQuestion = catchAsync(async (req, res, next) => {
+    if (typeof req.body.order === 'number') {
+        const existing = await Question.findOne({ order: req.body.order });
+        if (existing) {
+            return next(new AppError(`Order ${req.body.order} is already in use.`, 400));
         }
-        const question = await Question.create(req.body);
-        res.status(201).json(question);
-    } catch (error) {
-        res.status(400).json({
-            message: "Error creating question",
-            error: error.message
-        });
     }
-}
+    const question = await Question.create(req.body);
+    res.status(201).json(toQuestionDTO(question));
+});
 
 // Update a question
-export async function updateQuestion(req, res) {
-    try {
-        const { id } = req.params;
-        // Prevent duplicate order values on update
-        if (typeof req.body.order === 'number') {
-            const duplicate = await Question.findOne({ order: req.body.order, _id: { $ne: id } });
-            if (duplicate) {
-                return res.status(400).json({ message: `Order ${req.body.order} is already in use.` });
-            }
+export const updateQuestion = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    if (typeof req.body.order === 'number') {
+        const duplicate = await Question.findOne({ order: req.body.order, _id: { $ne: id } });
+        if (duplicate) {
+            return next(new AppError(`Order ${req.body.order} is already in use.`, 400));
         }
-        const question = await Question.findByIdAndUpdate(
-            id,
-            req.body,
-            { new: true, runValidators: true }
-        );
-
-        if (!question) {
-            return res.status(404).json({ message: "Question not found" });
-        }
-
-        res.status(200).json(question);
-    } catch (error) {
-        res.status(400).json({
-            message: "Error updating question",
-            error: error.message
-        });
     }
-}
+    const question = await Question.findByIdAndUpdate(
+        id,
+        req.body,
+        { new: true, runValidators: true }
+    );
+    if (!question) {
+        return next(new AppError("Question not found", 404));
+    }
+    res.status(200).json(toQuestionDTO(question));
+});
 
 // Delete a question
-export async function deleteQuestion(req, res) {
-    try {
-        const { id } = req.params;
-        const question = await Question.findByIdAndDelete(id);
-
-        if (!question) {
-            return res.status(404).json({ message: "Question not found" });
-        }
-
-        res.status(200).json({ message: "Question deleted successfully" });
-    } catch (error) {
-        res.status(500).json({
-            message: "Failed to delete question",
-            error: error.message
-        });
+export const deleteQuestion = catchAsync(async (req, res, next) => {
+    const question = await Question.findByIdAndDelete(req.params.id);
+    if (!question) {
+        return next(new AppError("Question not found", 404));
     }
-}
+    res.status(200).json({ message: "Question deleted successfully" });
+});
 
 // Reorder questions
-export async function reorderQuestions(req, res) {
-    try {
-        const { questionOrders } = req.body; // Array of { id, order }
-
-        const updatePromises = questionOrders.map(({ id, order }) =>
-            Question.findByIdAndUpdate(id, { order }, { new: true })
-        );
-
-        await Promise.all(updatePromises);
-
-        const questions = await Question.find().sort({ order: 1, createdAt: 1 });
-        res.status(200).json(questions);
-    } catch (error) {
-        res.status(400).json({
-            message: "Error reordering questions",
-            error: error.message
-        });
-    }
-}
+export const reorderQuestions = catchAsync(async (req, res, next) => {
+    const { questionOrders } = req.body; 
+    const updatePromises = questionOrders.map(({ id, order }) =>
+        Question.findByIdAndUpdate(id, { order }, { new: true })
+    );
+    await Promise.all(updatePromises);
+    const questions = await Question.find().sort({ order: 1, createdAt: 1 });
+    res.status(200).json(toQuestionListDTO(questions));
+});
 
 // Toggle question active status
-export async function toggleQuestionStatus(req, res) {
-    try {
-        const { id } = req.params;
-        const question = await Question.findById(id);
-
-        if (!question) {
-            return res.status(404).json({ message: "Question not found" });
-        }
-
-        question.isActive = !question.isActive;
-        await question.save();
-
-        res.status(200).json(question);
-    } catch (error) {
-        res.status(500).json({
-            message: "Error toggling question status",
-            error: error.message
-        });
+export const toggleQuestionStatus = catchAsync(async (req, res, next) => {
+    const question = await Question.findById(req.params.id);
+    if (!question) {
+        return next(new AppError("Question not found", 404));
     }
-}
+    question.isActive = !question.isActive;
+    await question.save();
+    res.status(200).json(toQuestionDTO(question));
+});

@@ -1,182 +1,125 @@
 import Response from "../models/Response.js"
 import Question from "../models/Question.js"
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/appError.js";
+import { toResponseDTO, toResponseListDTO } from "../dtos/responseDTO.js";
 
-export async function submitResponse(req, res) {
-    try {
-        // Step 1: Fetch all active questions, sorted by their order
-        const questions = await Question.find({ isActive: true }).sort({ order: 1 });
+export const submitResponse = catchAsync(async (req, res, next) => {
+    // Step 1: Fetch all active questions, sorted by their order
+    const questions = await Question.find({ isActive: true }).sort({ order: 1 });
 
-        // Step 2: If there are no active questions, return an error
-        if (questions.length === 0) {
-            return res.status(400).json({
-                message: "No active questions found. Survey is not available.",
-            });
+    // Step 2: If there are no active questions, return an error
+    if (questions.length === 0) {
+        return next(new AppError("No active questions found. Survey is not available.", 400));
+    }
+
+    // Step 3: Prepare containers for validation errors, answers, and question IDs
+    const validationErrors = [];
+    const answers = {}; 
+    const questionIds = [];
+
+    // Helpers
+    const isAnswered = (question, answer) => {
+        if (question.questionType === 'checkbox') return Array.isArray(answer) && answer.length > 0;
+        return answer && (typeof answer !== 'string' || answer.trim() !== '');
+    };
+
+    const isAgeQuestion = (question) => (question.fieldKey === 'age') || (/age/i.test(question.questionText));
+
+    // Step 4: Validate each question and collect answers
+    for (const question of questions) {
+        questionIds.push(question._id);
+        const answer = req.body[question._id];
+
+        if (question.isRequired && !isAnswered(question, answer)) {
+            validationErrors.push(`Question "${question.questionText}" is required`);
+            continue;
         }
 
-        // Step 3: Prepare containers for validation errors, answers, and question IDs
-        const validationErrors = [];
-        const answers = {}; // Use plain object for easier serialization
-        const questionIds = [];
-
-        // Helper: Checks if a question is answered
-        function isAnswered(question, answer) {
-            if (question.questionType === 'checkbox') {
-                // Checkbox answers must be a non-empty array
-                return Array.isArray(answer) && answer.length > 0;
-            }
-            // Other types: must not be empty (if string, must not be blank)
-            return answer && (typeof answer !== 'string' || answer.trim() !== '');
-        }
-
-        // Helper: Checks if a question is an age question
-        function isAgeQuestion(question) {
-            return (question.fieldKey === 'age') || (/age/i.test(question.questionText));
-        }
-
-        // Step 4: Validate each question and collect answers
-        for (const question of questions) {
-            questionIds.push(question._id);
-            const answer = req.body[question._id];
-
-            // Step 4a: Validate required questions
-            if (question.isRequired && !isAnswered(question, answer)) {
-                validationErrors.push(`Question "${question.questionText}" is required`);
-                continue; // Skip to next question if not answered
-            }
-
-            // Step 4b: Add answer if present (for required or optional questions)
-            if (isAnswered(question, answer)) {
-                answers[question._id.toString()] = answer;
-            }
-
-            // Step 4c: For special questions (like age, gender, occupation),
-            // also map their answers to a top-level key for easier access later
-            if (answers[question._id.toString()] !== undefined) {
-                const valueFromId = answers[question._id.toString()];
-                if (isAgeQuestion(question)) {
-                    // Validate and store age as a non-negative number
-                    const numeric = typeof valueFromId === 'number' ? valueFromId : parseInt((valueFromId || '').toString().trim(), 10);
-                    if (!Number.isFinite(numeric) || numeric < 0) {
-                        validationErrors.push('Age must be a non-negative number');
-                    } else {
-                        answers['age'] = numeric;
-                    }
-                } else if (question.fieldKey) {
-                    // Normalize to lowercase for special fields
-                    const specialFields = ['gender', 'occupation', 'education'];
-                    const key = specialFields.includes(question.fieldKey.toLowerCase())
-                        ? question.fieldKey.toLowerCase()
-                        : question.fieldKey;
-                    answers[key] = valueFromId;
-                }
+        if (isAnswered(question, answer)) {
+            const val = answer;
+            answers[question._id.toString()] = val;
+            
+            if (isAgeQuestion(question)) {
+                const numeric = typeof val === 'number' ? val : parseInt((val || '').toString().trim(), 10);
+                if (!Number.isFinite(numeric) || numeric < 0) validationErrors.push('Age must be a non-negative number');
+                else answers['age'] = numeric;
+            } else if (question.fieldKey) {
+                const specialFields = ['gender', 'occupation', 'education'];
+                const key = specialFields.includes(question.fieldKey.toLowerCase()) ? question.fieldKey.toLowerCase() : question.fieldKey;
+                answers[key] = val;
             }
         }
+    }
 
-        // Step 5: If there are any validation errors, return them to the client
-        if (validationErrors.length > 0) {
-            return res.status(400).json({
-                message: "Validation failed",
-                errors: validationErrors
-            });
+    if (validationErrors.length > 0) {
+        return next(new AppError("Validation failed: " + validationErrors.join(", "), 400));
+    }
+
+    const responseData = {
+        answers: answers,
+        totalQuestions: questions.length,
+        questionIds: questionIds
+    };
+
+    const savedResponse = await Response.create(responseData);
+    res.status(201).json({ 
+        message: "Response submitted successfully!",
+        id: savedResponse._id 
+    });
+});
+
+export const getFilteredResponses = catchAsync(async (req, res, next) => {
+    const { age, gender, occupation, page = 1, limit = 10 } = req.query;
+    const filter = {};
+
+    if (age) filter['answers.age'] = Number(age);
+    if (gender) {
+        if (gender.toLowerCase() === 'prefer not to say') {
+            filter['answers.gender'] = { $in: ['prefer not to say', 'prefer_not_to_say', 'Prefer not to say', 'Prefer_not_to_say'] };
+        } else {
+            filter['answers.gender'] = gender;
         }
-
-        // Step 6: Prepare the response data object
-        const responseData = {
-            answers: answers,
-            totalQuestions: questions.length,
-            questionIds: questionIds
-        };
-
-        // Step 7: Save the response to the database
-        const savedResponse = await Response.create(responseData);
-        res.status(201).json({ 
-            message: "Response submitted successfully!",
-            id: savedResponse._id 
-        });
-    } catch (error) {
-        // Step 8: Handle unexpected errors
-        res.status(400).json({
-            message: "Error in submitResponse method",
-            error: error.message,
-        });
     }
-}
+    if (occupation) filter['answers.occupation'] = { $regex: occupation, $options: 'i' };
 
-export async function getFilteredResponses(req, res) {
-    try {
-        const { age, gender, occupation, page = 1, limit = 10 } = req.query
-        const filter = {}
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
 
-        // Update filter to use the new answers structure
-        if (age) filter['answers.age'] = Number(age);
-        if (gender) {
-            // Handle gender filter with multiple possible formats
-            if (gender.toLowerCase() === 'prefer not to say') {
-                // Match both "prefer not to say" and "prefer_not_to_say"
-                filter['answers.gender'] = {
-                    $in: ['prefer not to say', 'prefer_not_to_say', 'Prefer not to say', 'Prefer_not_to_say']
-                };
-            } else {
-                filter['answers.gender'] = gender;
-            }
+    const responses = await Response.find(filter)
+        .skip(skip)
+        .limit(limitNum)
+        .sort({ createdAt: -1 });
+
+    const total = await Response.countDocuments(filter);
+    const totalPages = Math.ceil(total / limitNum);
+
+    res.status(200).json({
+        responses: toResponseListDTO(responses),
+        pagination: {
+            currentPage: pageNum,
+            totalPages,
+            totalItems: total,
+            itemsPerPage: limitNum,
+            hasNextPage: pageNum < totalPages,
+            hasPrevPage: pageNum > 1
         }
-        if (occupation) filter['answers.occupation'] = { $regex: occupation, $options: 'i' };
+    });
+});
 
-        const pageNum = parseInt(page);
-        const limitNum = parseInt(limit);
-        const skip = (pageNum - 1) * limitNum;
-
-        const responses = await Response.find(filter)
-            .skip(skip)
-            .limit(limitNum)
-            .sort({ createdAt: -1 });
-
-        const total = await Response.countDocuments(filter);
-        const totalPages = Math.ceil(total / limitNum);
-
-        res.status(200).json({
-            responses,
-            pagination: {
-                currentPage: pageNum,
-                totalPages,
-                totalItems: total,
-                itemsPerPage: limitNum,
-                hasNextPage: pageNum < totalPages,
-                hasPrevPage: pageNum > 1
-            }
-        });
+export const getResponseById = catchAsync(async (req, res, next) => {
+    const response = await Response.findById(req.params.id);
+    if (!response) {
+        return next(new AppError("Response not found", 404));
     }
-    catch (error) {
-        res.status(500).json({ message: "Failed to fetch responses", error: error.message })
+    res.status(200).json(toResponseDTO(response));
+});
+
+export const deleteResponse = catchAsync(async (req, res, next) => {
+    const response = await Response.findByIdAndDelete(req.params.id);
+    if (!response) {
+        return next(new AppError("Response not found", 404));
     }
-}
-
-export async function getResponseById(req, res) {
-    try {
-        const { id } = req.params;
-        const response = await Response.findById(id);
-        if (!response) {
-            return res.status(404).json({ message: "Response not found" });
-        }
-        res.status(200).json(response);
-    } catch (error) {
-        res.status(500).json({ message: "Failed to fetch response", error: error.message });
-    }
-}
-
-export async function deleteResponse(req, res) {
-    try {
-        const { id } = req.params;
-
-        const response = await Response.findByIdAndDelete(id);
-
-        if (!response) {
-            return res.status(404).json({ message: "Response not found" });
-        }
-
-        res.status(200).json({ message: "Response deleted successfully" });
-    }
-    catch (error) {
-        res.status(500).json({ message: "Failed to delete response", error: error.message })
-    }
-}
+    res.status(200).json({ message: "Response deleted successfully" });
+});

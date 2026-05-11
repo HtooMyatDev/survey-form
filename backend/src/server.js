@@ -13,7 +13,10 @@ import userSeeder from "./userSeeder.js";
 
 import { connectDB } from "./config/db.js"
 import { rateLimiter } from "./middleware/rateLimiter.js"
+import { swaggerUi, specs } from './config/swagger.js';
 import { initCronJobs } from "./utils/cron.js";
+import errorHandler from "./middleware/errorHandler.js";
+import AppError from "./utils/appError.js";
 
 // Diagnostic logger for production
 const logger = (req, res, next) => {
@@ -59,6 +62,12 @@ apiRouter.all("/ping", (req, res) => {
 app.use("/api", apiRouter);
 app.use("/", apiRouter);
 
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: "Psychology Survey API Docs"
+}));
+
 
 // test route
 app.get("/api/health", (req, res) => {
@@ -69,11 +78,19 @@ app.get("/api/health", (req, res) => {
 // Serve frontend (Only if not on Vercel)
 if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
     app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
-    });
 }
+
+// Handle unhandled routes (404)
+app.all("*", (req, res, next) => {
+    // If it's a static file request (production), let it pass to the static middleware
+    if (process.env.NODE_ENV === "production" && !process.env.VERCEL && !req.url.startsWith('/api')) {
+        return res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
+    }
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+// Global Error Handler (Must be the last middleware)
+app.use(errorHandler);
 
 // Connect to DB and start the server
 if (process.env.NODE_ENV !== "production") {
