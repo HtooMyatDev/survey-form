@@ -33,7 +33,9 @@ const Survey = () => {
         try {
             const response = await api.get('/questions');
             const data = Array.isArray(response.data) ? response.data : [];
-            const sortedQuestions = data.sort((a, b) => a.order - b.order);
+            const sortedQuestions = data
+                .map(q => ({ ...q, _id: q._id ?? q.id }))  // ← normalize here
+                .sort((a, b) => a.order - b.order);
             setQuestions(sortedQuestions);
 
             const initialFormData = {};
@@ -41,6 +43,7 @@ const Survey = () => {
                 initialFormData[question._id] = question.questionType === 'checkbox' ? [] : '';
             });
             setFormData(initialFormData);
+
         } catch (error) {
             toast.error('Failed to load survey questions');
             console.error('Error fetching questions:', error);

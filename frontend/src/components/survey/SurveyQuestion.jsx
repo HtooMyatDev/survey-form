@@ -1,15 +1,15 @@
 import React from 'react';
 
-const SurveyQuestion = ({ 
-    question, 
-    value, 
-    otherValue, 
-    onInputChange, 
-    onCheckboxChange, 
-    onOtherRadioSelect, 
-    onOtherRadioInput, 
-    onOtherCheckboxToggle, 
-    onOtherCheckboxInput 
+const SurveyQuestion = ({
+    question,
+    value,
+    otherValue,
+    onInputChange,
+    onCheckboxChange,
+    onOtherRadioSelect,
+    onOtherRadioInput,
+    onOtherCheckboxToggle,
+    onOtherCheckboxInput
 }) => {
     switch (question.questionType) {
         case 'text':
@@ -46,10 +46,10 @@ const SurveyQuestion = ({
                         {question.isRequired && <span className="text-red-500 ml-1">*</span>}
                     </label>
                     <div className="space-y-3">
-                        {question.options.map((option, index) => {
+                        {question.options.map((option) => {
                             const isOther = option.value.toLowerCase() === 'other' || option.text.toLowerCase() === 'other';
                             return (
-                                <div key={index}>
+                                <div key={option.value}>
                                     <label className="flex items-center gap-3 cursor-pointer hover:bg-pink-50 p-2 rounded-lg transition-colors">
                                         <input
                                             type="radio"
@@ -92,13 +92,13 @@ const SurveyQuestion = ({
                         {question.isRequired && <span className="text-red-500 ml-1">*</span>}
                     </label>
                     <div className="space-y-3">
-                        {question.options.map((option, index) => {
+                        {question.options.map((option) => {
                             const isOther = option.value.toLowerCase() === 'other' || option.text.toLowerCase() === 'other';
                             const checked = isOther
                                 ? (value || []).includes('__other__')
                                 : (value || []).includes(option.value);
                             return (
-                                <div key={index}>
+                                <div key={option.value}>
                                     <label className="flex items-center gap-3 cursor-pointer hover:bg-pink-50 p-2 rounded-lg transition-colors">
                                         <input
                                             type="checkbox"

@@ -17,8 +17,11 @@ const ViewSubmission = () => {
                     api.get(`/responses/${id}`),
                     api.get('/questions')
                 ]);
+
+
                 setSubmission(sRes.data);
-                setQuestions(qRes.data);
+setQuestions(qRes.data.map(q => ({ ...q, _id: q._id ?? q.id }))); // ← normalize
+
             } catch (err) {
                 console.error("Error fetching submission:", err);
                 toast.error("Failed to load your responses.");
@@ -94,7 +97,7 @@ const ViewSubmission = () => {
                                         </div>
                                         <div className="flex-1">
                                             <h3 className="font-bold text-gray-800 mb-3 text-lg">{q.questionText}</h3>
-                                            
+
                                             <div className="bg-pink-50/50 border border-pink-100 rounded-2xl p-4 transition-all group-hover:bg-pink-50">
                                                 {Array.isArray(answer) ? (
                                                     <div className="flex flex-wrap gap-2">
@@ -123,7 +126,7 @@ const ViewSubmission = () => {
                             <Sparkles className="w-5 h-5" />
                         </div>
                         <p className="text-gray-500 text-sm max-w-md mx-auto">
-                            This data is being used to improve mental health awareness and support systems. 
+                            This data is being used to improve mental health awareness and support systems.
                             Your contribution helps us build a more empathetic world.
                         </p>
                     </div>
